@@ -1,129 +1,72 @@
-# 🍽️ OmRestaurant
+# OmRestaurant
 
-**OmRestaurant** is a dynamic food ordering web application designed to provide customers with an easy and efficient way to explore dishes, place online orders, and have food delivered to their doorstep.  
-It also offers admin management, secure user authentication, and convenient contact and subscription features.
+OmRestaurant is a restaurant website built with static HTML, CSS, and JavaScript, served by a Java Spring Boot application. Its reservation, contact, and newsletter forms save submissions to MySQL. GSAP provides smooth scrolling for in-page links and the back-to-top control.
 
----
+## Features
 
-## 🧭 Overview
+- Restaurant home, about, service, menu, booking, contact, team, and testimonial pages
+- Table reservation form with date, time, party size, and optional special request
+- Contact form and newsletter subscription form
+- MySQL persistence through Spring JDBC
+- GSAP smooth scrolling, with reduced-motion support and a fallback if GSAP is unavailable
 
-OmRestaurant streamlines the online food ordering process for both customers and administrators.  
-Customers can browse menus, register accounts, and track their orders, while administrators can manage dishes, users, and incoming orders through an intuitive dashboard.
+Online ordering, customer accounts, order tracking, and an admin dashboard are not implemented.
 
----
+## Requirements
 
-## 🌟 Core Features
+- JDK 21
+- Maven 3.6.3 or newer
+- MySQL 8 or a compatible MySQL server
 
-- **Menu Browsing:** Explore dishes with images, prices, and descriptions.  
-- **Online Ordering:** Place and track food orders online.  
-- **User Authentication:** Register, log in, and manage personal orders securely.  
-- **Contact Form:** Send feedback or inquiries directly to the restaurant team.  
-- **Newsletter Subscription:** Stay updated with new dishes and offers.  
-- **Admin Dashboard:** Manage users, dishes, and orders with ease.
+## Database setup
 
----
+Create the `omrestaurant` database in MySQL. Then either import [`database/omRest_db.sql`](database/omRest_db.sql), which creates the database and tables, or start the app after creating the database; Spring Boot initializes the tables from `src/main/resources/schema.sql`.
 
-## ⚙️ Getting Started
+By default, the app connects to `localhost:3306` as `root` with an empty password. Configure another database with these environment variables before starting the app:
 
-### Prerequisites
-Before running the project, make sure you have:
-- **XAMPP** or any PHP-supported local server  
-- **Composer** (optional, for PHPMailer)  
-- **MySQL** for database management  
-
-### Installation Steps
-1. **Clone this repository**
-   ```bash
-   git clone https://github.com/yourusername/OmRestaurant.git
-   ```
-
-2. **Move the folder**
-   Place the project inside your local server directory (e.g., `htdocs` in XAMPP).
-
-3. **Start the server**
-   Open XAMPP and start **Apache** and **MySQL**.
-
-4. **Install dependencies (optional)**
-   ```bash
-   composer install
-   ```
-
----
-
-## 💻 Tech Stack
-
-- **Frontend:** HTML, CSS, JavaScript, Bootstrap  
-- **Backend:** PHP  
-- **Database:** MySQL  
-- **Server:** Apache  
-- **Mail Service:** PHPMailer (optional)
-
----
-
-## 🧩 Environment Setup
-
-Edit your `config.php` file to include your database credentials:
-```php
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = 'omrestaurant';
+```sh
+export DB_URL='jdbc:mysql://localhost:3306/omrestaurant?serverTimezone=UTC'
+export DB_USERNAME='your-user'
+export DB_PASSWORD='your-password'
 ```
 
-If using PHPMailer, update SMTP details in your mail configuration file.
+The app creates missing tables but does not migrate an older table structure. Back up existing data and migrate older tables to the current schema before upgrading.
 
----
+## Run locally
 
-## 🗃️ Database Configuration
+From the project root, start the application with:
 
-1. Open [phpMyAdmin](http://localhost/phpmyadmin).  
-2. Create a new database:
-   ```
-   omrestaurant
-   ```
-3. Import the SQL file:
-   ```
-   omrestaurant.sql
-   ```
-4. Confirm tables for users, orders, dishes, and subscriptions exist.
-
----
-
-## ▶️ Running the App
-
-Open your browser and visit:
-```
-http://localhost/OmRestaurant/
+```sh
+mvn spring-boot:run
 ```
 
-From there:
-- **Users** can browse dishes, sign up, and order food.  
-- **Admins** can manage everything from the admin panel.
+Open <http://localhost:8080/>. Stop the application with `Ctrl+C` in the terminal where it is running.
 
----
+To build and run an executable JAR instead:
 
-## 🧠 Common Issues
+```sh
+mvn package
+java -jar target/omrestaurant-1.0.0.jar
+```
 
-| Issue | Possible Fix |
-|-------|---------------|
-| Database connection failed | Verify database credentials in `config.php` |
-| PHPMailer error | Recheck SMTP configuration or enable less secure app access |
-| CSS/JS not loading | Confirm correct file paths and project folder placement |
+## Form endpoints
 
----
+The HTML forms submit URL-encoded `POST` requests to these routes. On success or invalid input, the server redirects to the related page with a status message.
 
-## 👨‍💻 Developer Guide
+| Route | Form fields | Database table |
+| --- | --- | --- |
+| `POST /bookings` | `name`, `email`, `date`, `people`, `request` | `booking` |
+| `POST /contact` | `name`, `email`, `subject`, `message` | `contact_us` |
+| `POST /newsletter` | `email` | `newsletter` |
 
-- Fork this repo to create your own version.  
-- Use the `/admin` directory for admin-related logic and panels.  
-- Keep separate configuration files for security and maintainability.  
-- Follow consistent naming conventions for scalability.
+## Project layout
 
----
+```text
+src/main/java/com/omrestaurant/       Spring Boot application and form handlers
+src/main/resources/application.properties  Database and server configuration
+src/main/resources/schema.sql        Table definitions initialized at startup
+src/main/resources/static/           HTML pages, styles, scripts, and images
+database/omRest_db.sql                Standalone MySQL database setup
+```
 
-## 📜 License & Credits
-
-This project is licensed under the **MIT License**.  
-Feel free to use, modify, and distribute this project with proper attribution.
-
----
+The pages load GSAP 3.13.0 and its ScrollToPlugin from cdnjs, so browsers need access to that CDN for animated scrolling. If the scripts are unavailable, links still work with native scrolling.
