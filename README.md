@@ -176,7 +176,7 @@ erDiagram
         timestamp booking_at
         smallint people
         text request
-        timestamp with_time_zone created_at
+        timestamptz created_at
     }
 
     CONTACT_US {
@@ -185,13 +185,13 @@ erDiagram
         varchar email
         varchar subject
         text message
-        timestamp with_time_zone created_at
+        timestamptz created_at
     }
 
     NEWSLETTER {
         bigserial id PK
         varchar email
-        timestamp with_time_zone created_at
+        timestamptz created_at
     }
 ```
 
