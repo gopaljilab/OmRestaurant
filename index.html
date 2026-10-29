@@ -296,7 +296,7 @@
                     <div class="p-5 wow fadeInUp" data-wow-delay="0.2s">
                         <h5 class="section-title ff-secondary text-start text-primary fw-normal">Reservation</h5>
                         <h1 class="text-white mb-4">Book A Table Online</h1>
-                        <form action="php/booking.php" method="post">
+                        <form action="/bookings" method="post">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
@@ -396,7 +396,7 @@
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Newsletter</h4>
                         <p>Share Your Email to Subscribe.</p>
-                    <form action="php/newsletter.php" method="post">
+                    <form action="/newsletter" method="post">
                         <div class="position-relative mx-auto" style="max-width: 400px;">
                             <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email" name="email">
                             <button type="submit" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
@@ -446,6 +446,12 @@
     <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
     <!-- Template Javascript -->
+    <script src="lib/gsap/gsap.min.js"></script>
+    <script src="lib/gsap/ScrollToPlugin.min.js"></script>
+    <script src="js/webgl-hero.js"></script>
+    <script src="lib/emailjs/email.min.js"></script>
+    <script src="js/email-config.js"></script>
+    <script src="js/email-service.js"></script>
     <script src="js/main.js"></script>
 </body>
 
