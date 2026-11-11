@@ -150,6 +150,7 @@
             const dateInput = form.querySelector("input[name='date']");
             const peopleInput = form.querySelector("select[name='people']") || form.querySelector("input[name='people']");
             const requestInput = form.querySelector("textarea[name='request']");
+            const tableIdInput = form.querySelector("input[name='table_id']");
             if (!emailInput || !emailInput.value.trim()) return;
 
             const creds = getFormCredentials("booking");
@@ -162,44 +163,98 @@
                 const guestEmail = emailInput.value.trim();
                 const bookingDateTime = dateInput ? dateInput.value.trim() : "";
                 const partySize = peopleInput ? peopleInput.value.trim() : "1";
-                const specialReq = requestInput ? requestInput.value.trim() : "None";
+                const specialReq = (requestInput && requestInput.value.trim()) || "None";
+                const tableId = tableIdInput ? tableIdInput.value.trim() : "";
+                const tableNumber = tableIdInput && tableIdInput.dataset.tableNumber ? tableIdInput.dataset.tableNumber : "";
+                const tableZone = tableIdInput && tableIdInput.dataset.tableZone ? tableIdInput.dataset.tableZone : "";
+                const tableInfo = tableNumber
+                    ? ("Table " + tableNumber + (tableZone ? " (" + tableZone + ")" : ""))
+                    : "Auto-assigned best table";
 
-                window.emailjs.send(creds.serviceId, creds.templateId, {
-                    name: guestName,
-                    to_name: guestName,
-                    guest_name: guestName,
-                    user_name: guestName,
-                    email: guestEmail,
-                    to_email: guestEmail,
-                    user_email: guestEmail,
-                    guest_email: guestEmail,
-                    reply_to: guestEmail,
-                    date: bookingDateTime,
-                    booking_date: bookingDateTime,
-                    reservation_date: bookingDateTime,
-                    date_time: bookingDateTime,
-                    people: partySize,
-                    guests: partySize,
-                    party_size: partySize,
-                    num_guests: partySize,
-                    request: specialReq,
-                    special_request: specialReq,
-                    message: specialReq,
-                    from_name: "OmRestaurant"
-                }, creds.publicKey).then(function () {
-                    try {
-                        const formData = new FormData(form);
-                        fetch(form.action, { method: "POST", body: new URLSearchParams(formData) }).catch(function () {});
-                    } catch (_) {}
+                const formData = new FormData(form);
+                let savedToBackend = false;
 
-                    notify("Reservation confirmed! A confirmation email has been sent to " + guestEmail, "success");
-                    form.reset();
-                    setButtonState(btn, false, "Book Now");
-                }).catch(function (err) {
-                    console.error("EmailJS booking sending error:", err);
-                    notify("Could not send email: " + (err.text || err.message || "Please try again later."), "error");
-                    setButtonState(btn, false, "Book Now");
-                });
+                fetch(form.action, {
+                    method: "POST",
+                    headers: { Accept: "application/json" },
+                    body: new URLSearchParams(formData)
+                })
+                    .then(function (res) {
+                        if (res.status === 409 || res.status === 400) {
+                            return res.json().catch(function () { return {}; }).then(function (errData) {
+                                const err = new Error(errData.error || "Could not reserve the selected table.");
+                                err.isBookingRejection = true;
+                                err.isConflict = res.status === 409 || errData.status === "table-unavailable";
+                                throw err;
+                            });
+                        }
+                        if (res.ok) {
+                            savedToBackend = true;
+                        }
+                        return null;
+                    })
+                    .catch(function (err) {
+                        if (err && err.isBookingRejection) {
+                            throw err;
+                        }
+                        // Static preview / offline fallback when no POST backend responds
+                        return null;
+                    })
+                    .then(function () {
+                        return window.emailjs.send(creds.serviceId, creds.templateId, {
+                            name: guestName,
+                            to_name: guestName,
+                            guest_name: guestName,
+                            user_name: guestName,
+                            email: guestEmail,
+                            to_email: guestEmail,
+                            user_email: guestEmail,
+                            guest_email: guestEmail,
+                            reply_to: guestEmail,
+                            date: bookingDateTime,
+                            booking_date: bookingDateTime,
+                            reservation_date: bookingDateTime,
+                            date_time: bookingDateTime,
+                            people: partySize,
+                            guests: partySize,
+                            party_size: partySize,
+                            num_guests: partySize,
+                            table_id: tableId || "auto",
+                            table_number: tableNumber || "Auto",
+                            table_zone: tableZone || "Any",
+                            table_info: tableInfo,
+                            request: specialReq,
+                            special_request: specialReq,
+                            message: specialReq,
+                            from_name: "OmRestaurant"
+                        }, creds.publicKey);
+                    })
+                    .then(function () {
+                        const tableSuffix = tableNumber ? (" (" + tableInfo + ")") : "";
+                        notify("Reservation confirmed" + tableSuffix + "! A confirmation email has been sent to " + guestEmail, "success");
+                        form.reset();
+                        document.dispatchEvent(new CustomEvent("om:booking-complete"));
+                        setButtonState(btn, false, "Book Now");
+                    })
+                    .catch(function (err) {
+                        if (err && err.isBookingRejection) {
+                            notify(err.message, "error");
+                            if (err.isConflict) {
+                                document.dispatchEvent(new CustomEvent("om:table-conflict"));
+                            }
+                            setButtonState(btn, false, "Book Now");
+                            return;
+                        }
+                        console.error("EmailJS booking error:", err);
+                        if (savedToBackend) {
+                            notify("Reservation saved" + (tableNumber ? " (" + tableInfo + ")" : "") + ", though EmailJS delivery could not complete automatically.", "info");
+                            form.reset();
+                            document.dispatchEvent(new CustomEvent("om:booking-complete"));
+                        } else {
+                            notify("Could not send email: " + (err.text || err.message || "Please try again later."), "error");
+                        }
+                        setButtonState(btn, false, "Book Now");
+                    });
             }
         });
     });

@@ -93,23 +93,43 @@
 
 
         <!-- Reservation Start -->
-        <div class="container-xxl py-5 px-0 om-reveal" data-om-delay="0.06">
-            <div class="row g-0">
-                <div class="col-md-6">
-                    <div class="video">
-                        <button type="button" class="btn-play" data-bs-toggle="modal"
-                            data-src="https://www.youtube.com/embed/MJu1E4Z3eZo?si=BqV4vltkfwVqlctq"
-                            data-bs-target="#videoModal">
-                            <span></span>
-                        </button>
+        <div class="container-xxl py-5 px-3 px-lg-4">
+            <div class="row g-0 rounded overflow-hidden shadow-lg">
+                <div class="col-lg-7 om-floorplan-panel p-3 p-sm-4 om-reveal" data-om-delay="0.06">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <div>
+                            <h5 class="section-title ff-secondary text-start text-primary fw-normal mb-1">Interactive Dining Map</h5>
+                            <h3 class="text-white mb-0">Choose Your Preferred Table</h3>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#floorPlanModal">
+                                <i class="fa fa-expand me-1 text-primary"></i> Full View
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-light btn-play" data-bs-toggle="modal"
+                                data-src="https://www.youtube.com/embed/MJu1E4Z3eZo?si=BqV4vltkfwVqlctq"
+                                data-bs-target="#videoModal">
+                                <i class="fa fa-play me-1 text-primary"></i> Tour
+                            </button>
+                        </div>
                     </div>
+                    <div id="om-table-picker" data-om-table-picker="inline"></div>
                 </div>
-                <div class="col-md-6 bg-dark d-flex align-items-center">
-                    <div class="p-5 om-reveal" data-om-delay="0.14">
+                <div class="col-lg-5 bg-dark d-flex align-items-center">
+                    <div class="p-4 p-sm-5 w-100 om-reveal" data-om-delay="0.14">
                         <h5 class="section-title ff-secondary text-start text-primary fw-normal">Reservation</h5>
                         <h1 class="text-white mb-4">Book A Table Online</h1>
                         <form action="/bookings" method="post">
+                            <input type="hidden" name="table_id" id="selectedTableId" value="">
                             <div class="row g-3">
+                                <div class="col-12">
+                                    <div id="om-selected-table-pill" class="om-selected-table-pill">
+                                        <span class="om-selected-table-pill__left">
+                                            <i class="fa fa-chair" aria-hidden="true"></i>
+                                            <span data-om-table-summary-text>Auto-assign best table, or click a table on the 2D Floor Plan</span>
+                                        </span>
+                                        <button type="button" class="om-selected-table-pill__clear" data-om-clear-table aria-label="Clear selected table" hidden>&times;</button>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="name" placeholder="Your Name"
@@ -127,14 +147,14 @@
                                 <div class="col-md-6">
                                     <div class="form-floating date" id="date3" data-target-input="nearest">
                                         <input type="datetime-local" class="form-control" id="datetime"
-                                            placeholder="Date & Time"  
+                                            placeholder="Date & Time"
                                             name="date" required>
                                         <label for="datetime">Date & Time</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="number" name="people" id="select1" class="form-select" min="1" max="100" required>
+                                        <input type="number" name="people" id="select1" class="form-select" min="1" max="100" value="2" required>
                                         <label for="select1">No Of People</label>
                                     </div>
                                 </div>
@@ -150,6 +170,25 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="floorPlanModal" tabindex="-1" aria-labelledby="floorPlanModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title text-white mb-0" id="floorPlanModalLabel">
+                                <i class="fa fa-utensils text-primary me-2"></i>OmRestaurant — 2D Dining Floor Plan
+                            </h5>
+                            <small class="text-white-50">Click an available table matching your party size to link it to your reservation</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-3 p-md-4">
+                        <div data-om-table-picker="modal"></div>
                     </div>
                 </div>
             </div>
@@ -172,7 +211,7 @@
                 </div>
             </div>
         </div>
-        <!-- Reservation Start -->
+        <!-- Reservation End -->
 
 
         <!-- Footer Start -->
@@ -267,6 +306,7 @@
     <script src="lib/gsap/ScrollToPlugin.min.js"></script>
     <script src="js/webgl-hero.js"></script>
     <script src="js/animations.js"></script>
+    <script src="js/table-picker.js"></script>
     <script src="lib/emailjs/email.min.js"></script>
     <script src="js/email-config.js"></script>
     <script src="js/email-service.js"></script>

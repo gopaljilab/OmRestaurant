@@ -61,6 +61,7 @@
     const formStatus = new URLSearchParams(window.location.search).get("status");
     const statusMessages = {
         "booking-success": { text: "Booking received. We will notify you soon.", type: "success" },
+        "table-unavailable": { text: "That table is already reserved for the selected time slot. Please choose another table.", type: "error" },
         "contact-success": { text: "We will reach you soon.", type: "success" },
         "newsletter-success": { text: "Thanks for subscribing.", type: "success" },
         "invalid": { text: "Please check the form and enter valid information.", type: "error" }
