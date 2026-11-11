@@ -640,7 +640,8 @@
                     var top = clientY - wrapRect.top - tipRect.height - 12;
 
                     var maxLeft = wrapEl.scrollLeft + wrapEl.clientWidth - tipRect.width - 10;
-                    if (left > maxLeft) left = Math.max(wrapEl.scrollLeft + 10, left - tipRect.width - 26);
+                    if (left > maxLeft) left = Math.max(wrapEl.scrollLeft + 8, left - tipRect.width - 26);
+                    if (left < wrapEl.scrollLeft + 8) left = wrapEl.scrollLeft + 8;
                     if (top < 8) top = clientY - wrapRect.top + 18;
 
                     tooltipEl.style.left = left + "px";
@@ -689,6 +690,7 @@
             var wrap = root.querySelector(".om-fp-canvas-wrap");
             var liveBadge = root.querySelector("[data-om-fp-live-badge]");
             var countBadge = root.querySelector("[data-om-fp-count]");
+            var selectedBadge = root.querySelector("[data-om-fp-selected-badge]");
             var syncDate = root.querySelector("[data-om-fp-date]");
             var syncParty = root.querySelector("[data-om-fp-party]");
             var zoneButtons = Array.prototype.slice.call(root.querySelectorAll("[data-om-zone-btn]"));
@@ -702,6 +704,17 @@
                     ? "Checking availability..."
                     : (state.liveConnected ? "Live Supabase Sync" : "Interactive Layout");
                 liveBadge.classList.toggle("is-live", state.liveConnected && !state.loading);
+            }
+
+            if (selectedBadge) {
+                var activeTable = getTableById(state.selectedTableId);
+                if (activeTable) {
+                    selectedBadge.hidden = false;
+                    selectedBadge.textContent = "Selected: T" + activeTable.table_number + " (" + activeTable.capacity + " Seats)";
+                } else {
+                    selectedBadge.hidden = true;
+                    selectedBadge.textContent = "";
+                }
             }
 
             if (countBadge) {
@@ -745,6 +758,29 @@
             updateFormSync();
         }
 
+        function scrollCanvasToZone(root, zoneId) {
+            var wrap = root.querySelector(".om-fp-canvas-wrap");
+            var svg = root.querySelector(".om-fp-svg");
+            if (!wrap || !svg || wrap.scrollWidth <= wrap.clientWidth + 4) return;
+
+            var targetLeft = 0;
+            if (zoneId && zoneId !== "ALL") {
+                var matchedZone = DEFAULT_LAYOUT.zones.filter(function (z) {
+                    return z.id === zoneId;
+                })[0];
+                if (matchedZone) {
+                    var ratioCenter = (matchedZone.x + matchedZone.w / 2) / DEFAULT_LAYOUT.viewBox.width;
+                    targetLeft = Math.max(0, Math.round(wrap.scrollWidth * ratioCenter - wrap.clientWidth / 2));
+                }
+            }
+            var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (typeof wrap.scrollTo === "function") {
+                wrap.scrollTo({ left: targetLeft, behavior: reduced ? "auto" : "smooth" });
+            } else {
+                wrap.scrollLeft = targetLeft;
+            }
+        }
+
         function buildMountMarkup(root) {
             if (root.dataset.omBuilt === "true") return;
             root.dataset.omBuilt = "true";
@@ -770,6 +806,7 @@
                 '      </select>',
                 '    </div>',
                 '    <div class="om-fp-status-cluster">',
+                '      <span class="om-fp-selected-badge" data-om-fp-selected-badge hidden></span>',
                 '      <span class="om-fp-pill" data-om-fp-count>12 suitable tables free</span>',
                 '      <span class="om-fp-live-pill" data-om-fp-live-badge>Checking availability...</span>',
                 '    </div>',
@@ -781,6 +818,7 @@
                 '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Patio" aria-pressed="false">Patio (2-4)</button>',
                 '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Booth" aria-pressed="false">VIP Booths (6-8)</button>',
                 '  </div>',
+                '  <div class="om-fp-mobile-hint"><i class="fa fa-arrows-alt-h text-primary" aria-hidden="true"></i><span>Swipe map sideways to explore Patio &amp; VIP Booths, or tap a zone pill above.</span></div>',
                 '  <div class="om-fp-canvas-wrap">',
                 '    <svg class="om-fp-svg" preserveAspectRatio="xMidYMid meet"></svg>',
                 '    <div class="om-fp-tooltip" hidden></div>',
@@ -819,6 +857,9 @@
                 btn.addEventListener("click", function () {
                     state.activeZone = btn.getAttribute("data-om-zone-btn") || "ALL";
                     renderAll();
+                    mountRoots.forEach(function (mountEl) {
+                        scrollCanvasToZone(mountEl, state.activeZone);
+                    });
                 });
             });
         }

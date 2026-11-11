@@ -237,20 +237,20 @@ sequenceDiagram
     Picker->>Backend: GET /api/tables/availability?date=YYYY-MM-DD&time=HH:MM
     Backend->>DB: Query tables + 90-min overlapping bookings
     DB-->>Backend: Availability list (14 tables)
-    Backend-->>Picker: JSON [{id, table_number, capacity, zone, status, available}]
-    Picker->>Guest: Greys out <5 seat & reserved tables; guest selects Table 8
+    Backend-->>Picker: JSON table list (id, table_number, capacity, zone, status, available)
+    Picker->>Guest: Greys out under-5 seat & reserved tables, guest selects Table 8
     Guest->>Picker: Submits reservation form
-    Picker->>Backend: POST /bookings (Accept: application/json, table_id=8)
-    Backend->>DB: SELECT ... FOR UPDATE & check ±90m overlap
+    Picker->>Backend: POST /bookings (JSON, table_id=8)
+    Backend->>DB: SELECT FOR UPDATE & check 90-min turn overlap
     alt Slot taken concurrently
         Backend-->>Picker: HTTP 409 Conflict (table-unavailable)
         Picker->>Guest: Shows error toast & refreshes floor plan
     else Reservation persisted
         DB-->>Backend: Row inserted in booking (table_id=8)
         Backend-->>Picker: HTTP 200 OK
-        Picker->>EmailJS: emailjs.send(..., table_info, table_number, table_zone)
+        Picker->>EmailJS: emailjs.send (table_info, table_number, table_zone)
         EmailJS-->>Guest: Confirmation email delivered with table details
-        Picker->>Backend: Refresh availability -> Table 8 marked Reserved
+        Picker->>Backend: Refresh availability (Table 8 marked Reserved)
     end
 ```
 
