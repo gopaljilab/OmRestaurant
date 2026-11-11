@@ -54,6 +54,50 @@
     color: #FFFFFF;
 }
 
+.btn.btn-primary {
+    overflow: hidden;
+    transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.btn.btn-primary:not(.position-absolute):not(.back-to-top) {
+    position: relative;
+}
+
+.btn.btn-primary:not(.dropdown-toggle)::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(255, 255, 255, 0.42) 50%,
+        rgba(255, 255, 255, 0.08) 65%,
+        transparent 100%
+    );
+    transform: skewX(-22deg);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.btn.btn-primary:not(.dropdown-toggle):hover::after,
+.btn.btn-primary:not(.dropdown-toggle):focus-visible::after {
+    opacity: 1;
+    animation: omBtnShine 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes omBtnShine {
+    0% {
+        left: -75%;
+    }
+    100% {
+        left: 135%;
+    }
+}
+
 .btn-square {
     width: 38px;
     height: 38px;
@@ -103,6 +147,31 @@
     color: var(--primary) !important;
 }
 
+.navbar-dark .navbar-nav .nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 24px;
+    width: 100%;
+    height: 2px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.sticky-top.navbar-dark .navbar-nav .nav-link::before {
+    bottom: 12px;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover::before,
+.navbar-dark .navbar-nav .nav-link:focus-visible::before,
+.navbar-dark .navbar-nav .nav-link.active::before {
+    transform: scaleX(1);
+    transform-origin: left center;
+}
+
 .navbar-dark .navbar-brand img {
     max-height: 60px;
     transition: .5s;
@@ -126,6 +195,12 @@
     .sticky-top.navbar-dark .navbar-nav .nav-link {
         padding: 10px 0;
         margin-left: 0;
+    }
+
+    .navbar-dark .navbar-nav .nav-link::before,
+    .sticky-top.navbar-dark .navbar-nav .nav-link::before {
+        bottom: 4px;
+        width: 28px;
     }
 
     .navbar-dark .navbar-brand img {
@@ -161,7 +236,8 @@
     background-size: cover;
 }
 
-.hero-webgl {
+.hero-webgl,
+.hero-particles {
     position: absolute;
     inset: 0;
     z-index: 0;
@@ -228,16 +304,19 @@
 
 /*** Service ***/
 .service-item {
+    position: relative;
+    overflow: hidden;
     box-shadow: 0 0 45px rgba(0, 0, 0, .08);
-    transition: .5s;
+    transition: background 0.45s ease, box-shadow 0.45s ease;
 }
 
 .service-item:hover {
     background: var(--primary);
+    box-shadow: 0 18px 42px rgba(15, 23, 43, .14);
 }
 
 .service-item * {
-    transition: .5s;
+    transition: color 0.45s ease;
 }
 
 .service-item:hover * {
@@ -371,13 +450,14 @@
 
 /*** Team ***/
 .team-item {
+    position: relative;
     box-shadow: 0 0 45px rgba(0, 0, 0, .08);
     height: calc(100% - 38px);
-    transition: .5s;
+    transition: height 0.5s ease, box-shadow 0.45s ease;
 }
 
 .team-item img {
-    transition: .5s;
+    transition: transform 0.5s ease;
 }
 
 .team-item:hover img {
@@ -386,6 +466,7 @@
 
 .team-item:hover {
     height: 100%;
+    box-shadow: 0 18px 42px rgba(15, 23, 43, .14);
 }
 
 .team-item .btn {
@@ -496,3 +577,226 @@
     padding-right: 0;
     border-right: none;
 }
+
+
+/*** Interactive UI Enhancements ***/
+.om-mask-wrap {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+}
+
+.section-title .om-mask-wrap {
+    padding: 0.08em 0.06em;
+    margin: -0.08em -0.06em;
+}
+
+.om-mask-word {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+.om-interactive-card {
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.om-card-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.28s ease !important;
+    background: radial-gradient(
+        260px circle at var(--om-glow-x, 50%) var(--om-glow-y, 50%),
+        rgba(254, 161, 22, 0.2),
+        rgba(254, 161, 22, 0.05) 45%,
+        transparent 75%
+    );
+}
+
+.service-item:hover .om-card-glow {
+    background: radial-gradient(
+        260px circle at var(--om-glow-x, 50%) var(--om-glow-y, 50%),
+        rgba(255, 255, 255, 0.28),
+        rgba(255, 255, 255, 0.08) 45%,
+        transparent 75%
+    );
+}
+
+/* Smooth Page Transitions */
+.om-page-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 100001;
+    background: linear-gradient(90deg, var(--primary), #ffd27d, var(--primary));
+    box-shadow: 0 0 12px rgba(254, 161, 22, 0.7);
+    transform: scaleX(0);
+    transform-origin: left center;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+
+.om-page-progress.is-active {
+    transform: scaleX(0.82);
+}
+
+.om-page-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: rgba(15, 23, 43, 0.28);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.om-page-veil.is-active {
+    opacity: 1;
+}
+
+/* Toast Notifications */
+.om-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100002;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: min(380px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+.om-toast {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px 16px;
+    border-radius: 6px;
+    background: var(--dark);
+    color: var(--light);
+    border: 1px solid rgba(254, 161, 22, 0.28);
+    border-left: 4px solid var(--primary);
+    box-shadow: 0 14px 36px rgba(15, 23, 43, 0.32);
+    font-family: 'Heebo', 'Nunito', sans-serif;
+    font-size: 0.94rem;
+    line-height: 1.45;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.om-toast--success {
+    border-left-color: #22c55e;
+}
+
+.om-toast--error {
+    border-left-color: #ef4444;
+}
+
+.om-toast__icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.om-toast--success .om-toast__icon {
+    color: #22c55e;
+}
+
+.om-toast--error .om-toast__icon {
+    color: #ef4444;
+}
+
+.om-toast__body {
+    flex: 1;
+    word-break: break-word;
+}
+
+.om-toast__close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: rgba(241, 248, 255, 0.72);
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0 2px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.om-toast__close:hover,
+.om-toast__close:focus-visible {
+    color: var(--primary);
+}
+
+.om-toast__progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary);
+    transform-origin: left center;
+    animation-name: omToastCountdown;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.om-toast--success .om-toast__progress {
+    background: #22c55e;
+}
+
+.om-toast--error .om-toast__progress {
+    background: #ef4444;
+}
+
+@keyframes omToastCountdown {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .om-toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+    }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .hero-header img,
+    .video .btn-play:before {
+        animation: none !important;
+    }
+
+    .btn.btn-primary:not(.dropdown-toggle)::after,
+    .navbar-dark .navbar-nav .nav-link::before,
+    .om-page-progress,
+    .om-page-veil,
+    .om-toast__progress {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .btn.btn-primary:not(.dropdown-toggle):hover::after {
+        opacity: 0;
+    }
+}
+

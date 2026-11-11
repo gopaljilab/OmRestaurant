@@ -41,6 +41,14 @@
         }
     }
 
+    function notify(message, type) {
+        if (typeof window.showOmToast === "function") {
+            window.showOmToast(message, type);
+        } else {
+            window.alert(message);
+        }
+    }
+
     // 1. Newsletter Subscription
     document.querySelectorAll("form[action*='newsletter']").forEach(function (form) {
         form.addEventListener("submit", function (e) {
@@ -71,12 +79,12 @@
                         fetch(form.action, { method: "POST", body: new URLSearchParams(formData) }).catch(function () {});
                     } catch (_) {}
 
-                    window.alert("Thank you for subscribing! A confirmation email has been sent to " + email);
+                    notify("Thank you for subscribing! A confirmation email has been sent to " + email, "success");
                     form.reset();
                     setButtonState(btn, false, "Subscribe");
                 }).catch(function (err) {
                     console.error("EmailJS newsletter sending error:", err);
-                    window.alert("Could not send email automatically: " + (err.text || err.message || "Please check your network or EmailJS settings."));
+                    notify("Could not send email automatically: " + (err.text || err.message || "Please check your network or EmailJS settings."), "error");
                     setButtonState(btn, false, "Subscribe");
                 });
             }
@@ -122,12 +130,12 @@
                         fetch(form.action, { method: "POST", body: new URLSearchParams(formData) }).catch(function () {});
                     } catch (_) {}
 
-                    window.alert("We received your message! A confirmation email has been sent to " + senderEmail);
+                    notify("We received your message! A confirmation email has been sent to " + senderEmail, "success");
                     form.reset();
                     setButtonState(btn, false, "Send Message");
                 }).catch(function (err) {
                     console.error("EmailJS contact sending error:", err);
-                    window.alert("Could not send email: " + (err.text || err.message || "Please try again later."));
+                    notify("Could not send email: " + (err.text || err.message || "Please try again later."), "error");
                     setButtonState(btn, false, "Send Message");
                 });
             }
@@ -184,12 +192,12 @@
                         fetch(form.action, { method: "POST", body: new URLSearchParams(formData) }).catch(function () {});
                     } catch (_) {}
 
-                    window.alert("Reservation confirmed! A confirmation email has been sent to " + guestEmail);
+                    notify("Reservation confirmed! A confirmation email has been sent to " + guestEmail, "success");
                     form.reset();
                     setButtonState(btn, false, "Book Now");
                 }).catch(function (err) {
                     console.error("EmailJS booking sending error:", err);
-                    window.alert("Could not send email: " + (err.text || err.message || "Please try again later."));
+                    notify("Could not send email: " + (err.text || err.message || "Please try again later."), "error");
                     setButtonState(btn, false, "Book Now");
                 });
             }

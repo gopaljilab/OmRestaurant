@@ -60,13 +60,18 @@
     // Show the result after a form's Post/Redirect/Get cycle.
     const formStatus = new URLSearchParams(window.location.search).get("status");
     const statusMessages = {
-        "booking-success": "Booking received. We will notify you soon.",
-        "contact-success": "We will reach you soon.",
-        "newsletter-success": "Thanks for subscribing.",
-        "invalid": "Please check the form and enter valid information."
+        "booking-success": { text: "Booking received. We will notify you soon.", type: "success" },
+        "contact-success": { text: "We will reach you soon.", type: "success" },
+        "newsletter-success": { text: "Thanks for subscribing.", type: "success" },
+        "invalid": { text: "Please check the form and enter valid information.", type: "error" }
     };
     if (formStatus && statusMessages[formStatus]) {
-        window.alert(statusMessages[formStatus]);
+        const notice = statusMessages[formStatus];
+        if (typeof window.showOmToast === "function") {
+            window.showOmToast(notice.text, notice.type);
+        } else {
+            window.alert(notice.text);
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
@@ -121,11 +126,13 @@
             $('.back-to-top').fadeOut('slow');
         }
     });
-    // Facts counter
-    $('[data-toggle="counter-up"]').counterUp({
-        delay: 10,
-        time: 2000
-    });
+    // Facts counter (handled by GSAP in animations.js; keep jQuery counterUp as fallback)
+    if (!window.OMAnimations || !window.gsap) {
+        $('[data-toggle="counter-up"]').counterUp({
+            delay: 10,
+            time: 2000
+        });
+    }
 
 
     // Modal Video
