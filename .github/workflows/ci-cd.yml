@@ -1,0 +1,228 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+jobs:
+  frontend-checks:
+    name: Frontend & Dev Server Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate JavaScript syntax
+        run: |
+          for f in js/*.js src/main/resources/static/js/*.js; do
+            node --check "$f"
+          done
+
+      - name: Validate Python dev server syntax
+        run: python3 -m py_compile dev_server.py
+
+      - name: Verify root and Spring Boot static asset parity
+        run: |
+          diff -u css/style.css src/main/resources/static/css/style.css
+          for f in animations.js email-config.js email-service.js main.js particles.js table-picker.js webgl-hero.js; do
+            diff -u "js/$f" "src/main/resources/static/js/$f"
+          done
+          for p in booking.html src/main/resources/static/booking.html; do
+            grep -q 'js/table-picker.js' "$p"
+            grep -q 'data-om-table-picker' "$p"
+          done
+
+  build-and-test:
+    name: Spring Boot Build & PostgreSQL Integration Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: omrestaurant
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build production JAR with Maven
+        run: mvn -B clean package
+
+      - name: Integration smoke test (Spring Boot + PostgreSQL 16)
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/omrestaurant
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+        run: |
+          java -jar target/omrestaurant-*.jar > app.log 2>&1 &
+          APP_PID=$!
+          trap 'kill $APP_PID >/dev/null 2>&1 || true' EXIT
+
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8080/booking.html >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl -sf http://127.0.0.1:8080/ >/dev/null
+          curl -sf http://127.0.0.1:8080/booking.html | grep -q 'om-table-picker'
+
+          python3 - <<'PY'
+          import json
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          base = "http://127.0.0.1:8080"
+
+          def request(method, path, data=None, headers=None):
+              encoded = urllib.parse.urlencode(data).encode() if data else None
+              req = urllib.request.Request(base + path, data=encoded, method=method, headers=headers or {})
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      return resp.status, resp.read().decode("utf-8")
+              except urllib.error.HTTPError as err:
+                  return err.code, err.read().decode("utf-8")
+
+          status, body = request("GET", "/api/tables/availability?date=2026-12-01&time=19:00")
+          assert status == 200, f"Expected 200, got {status}: {body}"
+          tables = json.loads(body)
+          assert len(tables) == 14, f"Expected 14 tables, got {len(tables)}"
+
+          status, body = request(
+              "POST",
+              "/bookings",
+              data={
+                  "name": "CI Tester",
+                  "email": "ci@example.com",
+                  "date": "2026-12-01T19:00",
+                  "people": "4",
+                  "request": "Window check",
+                  "table_id": "5",
+              },
+              headers={"Accept": "application/json"},
+          )
+          assert status == 200, f"Expected 200 booking table 5, got {status}: {body}"
+          assert json.loads(body).get("ok") is True
+
+          status, body = request("GET", "/api/tables/availability?date=2026-12-01&time=19:30")
+          assert status == 200
+          t5 = next(t for t in json.loads(body) if t["id"] == 5)
+          assert t5["status"] == "reserved", f"Expected table 5 reserved, got {t5}"
+
+          status, body = request(
+              "POST",
+              "/bookings",
+              data={
+                  "name": "Overlap Tester",
+                  "email": "overlap@example.com",
+                  "date": "2026-12-01T19:30",
+                  "people": "4",
+                  "request": "",
+                  "table_id": "5",
+              },
+              headers={"Accept": "application/json"},
+          )
+          assert status == 409, f"Expected 409 conflict on overlap, got {status}: {body}"
+
+          status, body = request(
+              "POST",
+              "/bookings",
+              data={
+                  "name": "Large Party",
+                  "email": "party@example.com",
+                  "date": "2026-12-01T19:00",
+                  "people": "5",
+                  "request": "",
+                  "table_id": "1",
+              },
+              headers={"Accept": "application/json"},
+          )
+          assert status == 400, f"Expected 400 capacity validation, got {status}: {body}"
+          print("All Spring Boot + PostgreSQL integration assertions passed!")
+          PY
+
+      - name: Print app logs on failure
+        if: failure()
+        run: cat app.log || true
+
+      - name: Upload built JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: omrestaurant-jar
+          path: target/omrestaurant-*.jar
+
+  docker:
+    name: Build & Publish Docker Image
+    needs: [frontend-checks, build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

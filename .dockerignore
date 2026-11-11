@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.DS_Store
+.vscode
+.env
+target
+*.sqlite3
+assets
+README.md
+THIRD-PARTY-NOTICES.md
+php
+phpmailer
+scss
+dev_server.py

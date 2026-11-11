@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: omrestaurant-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-omrestaurant}
+      POSTGRES_USER: ${POSTGRES_USER:-omrestaurant}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-omrestaurant_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - omrestaurant_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-omrestaurant} -d ${POSTGRES_DB:-omrestaurant}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omrestaurant-web
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/omrestaurant}
+      DB_USERNAME: ${DB_USERNAME:-omrestaurant}
+      DB_PASSWORD: ${DB_PASSWORD:-omrestaurant_dev}
+    restart: unless-stopped
+
+volumes:
+  omrestaurant_pgdata:
