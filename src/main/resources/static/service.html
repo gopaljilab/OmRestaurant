@@ -3,18 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <title>OM Restaurant</title>
+    <title>Our Services | OM Restaurant - Authentic Indian Vegetarian Dining</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
+    <meta content="OM Restaurant Services, Pure Vegetarian, Master Chefs, Online Food Delivery, Table Reservation, Catering Khurja" name="keywords">
+    <meta content="Explore premium hospitality services at OM Restaurant: artisanal master chefs, 100% pure vegetarian cuisine, fast online delivery, and 24/7 guest support." name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" href="img/favicon.png">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -44,11 +48,10 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0">
+        <div class="position-relative p-0 w-100">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
+                <a href="index.html" class="navbar-brand p-0">
                     <h1 class="text-primary m-0"><i class="fa fa-utensils me-3"></i>OM Restaurant</h1>
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars"></span>
@@ -69,16 +72,27 @@
                         </div>
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                     </div>
-                    <a href="" class="btn btn-primary py-2 px-4">Book A Table</a>
+                    <a href="booking.html" class="btn btn-primary py-2 px-4">Book A Table</a>
                 </div>
             </nav>
 
-            <div class="container-xxl py-5 bg-dark hero-header mb-5">
+            <div class="w-100 py-5 bg-dark hero-header mb-5">
                 <div class="container text-center my-5 pt-5 pb-4">
                     <h1 class="display-3 text-white mb-3 animated slideInDown">Services</h1>
+                    <p class="text-white-50 fs-5 mb-4 mx-auto" style="max-width: 650px;">
+                        Experience authentic culinary heritage, pure vegetarian flavors, and seamless digital hospitality crafted for you and your family.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap mb-4">
+                        <a href="menu.html" class="btn btn-primary py-3 px-5 rounded-pill fw-bold shadow me-2">
+                            <i class="fa fa-utensils me-2"></i>VIEW MENU
+                        </a>
+                        <a href="booking.html" class="btn btn-outline-light py-3 px-5 rounded-pill fw-semibold">
+                            <i class="fa fa-calendar-check me-2"></i>BOOK A TABLE
+                        </a>
+                    </div>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center text-uppercase">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
                             <li class="breadcrumb-item"><a href="#">Pages</a></li>
                             <li class="breadcrumb-item text-white active" aria-current="page">Service</li>
                         </ol>
@@ -92,81 +106,226 @@
         <!-- Service Start -->
         <div class="container-xxl py-5">
             <div class="container">
-                <div class="text-center om-reveal" data-om-delay="0.05">
+                <div class="text-center om-reveal mb-5" data-om-delay="0.05">
                     <h5 class="section-title ff-secondary text-center text-primary fw-normal">Our Services</h5>
-                    <h1 class="mb-5">Explore Our Services</h1>
+                    <h1 class="mb-3">Crafted For An Exceptional Dining Experience</h1>
+                    <p class="text-muted mx-auto" style="max-width: 680px;">
+                        From artisanal recipes passed down through generations to rapid contactless doorstep delivery, discover how OM Restaurant redefines dining excellence.
+                    </p>
                 </div>
-                <div class="row g-4">
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.06">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-user-tie text-primary mb-4"></i>
-                                <h5>Master Chefs</h5>
-                                <p>It's gonna take more than a clever cook to get that right. It's gonna take a magician.</p>
+                
+                <!-- 2x2 Services Grid -->
+                <div class="row g-4 justify-content-center">
+                    <!-- Service 1: Master Chefs -->
+                    <div class="col-lg-6 col-md-6 om-reveal" data-om-delay="0.05">
+                        <div class="service-item rounded-4 h-100 p-4 p-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="om-service-icon-box m-0">
+                                        <i class="fa fa-user-tie"></i>
+                                    </div>
+                                    <span class="badge om-service-pill">
+                                        <i class="fa fa-award text-warning me-1"></i>Culinary Masters
+                                    </span>
+                                </div>
+                                <h4 class="mb-3 fw-bold text-dark">Master Chefs</h4>
+                                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.65;">
+                                    Expert culinary artisans crafting authentic, mouth-watering North &amp; South Indian dishes with artisanal heritage, precision spice blends, and time-tested recipes.
+                                </p>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>15+ Years Culinary Mastery
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Hand-ground Masalas
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Heritage Clay Tandoor
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Custom Dietary Requests
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                                <span class="text-muted small"><i class="fa fa-users me-1 text-primary"></i>Executive Chef &amp; Team</span>
+                                <a href="team.html" class="btn btn-outline-primary rounded-pill px-4 py-2 om-service-cta fw-semibold">
+                                    Meet Our Chefs <i class="fa fa-arrow-right ms-1"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.12">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-utensils text-primary mb-4"></i>
-                                <h5>Quality Food</h5>
-                                <p>We're all so busy we don't make time to enjoy our lives, good company and good food</p>
+
+                    <!-- Service 2: Quality Food -->
+                    <div class="col-lg-6 col-md-6 om-reveal" data-om-delay="0.10">
+                        <div class="service-item rounded-4 h-100 p-4 p-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="om-service-icon-box m-0">
+                                        <i class="fa fa-utensils"></i>
+                                    </div>
+                                    <span class="badge om-service-pill">
+                                        <i class="fa fa-leaf text-success me-1"></i>100% Pure Vegetarian
+                                    </span>
+                                </div>
+                                <h4 class="mb-3 fw-bold text-dark">Quality Food</h4>
+                                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.65;">
+                                    100% pure vegetarian cuisine prepared fresh daily using farm-sourced produce, pure desi ghee, and strictly zero artificial preservatives or food colorings.
+                                </p>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-success me-2"></i>100% Veg Certified Kitchen
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-success me-2"></i>Farm-Fresh Daily Sourcing
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-success me-2"></i>Pure Desi Ghee Preparations
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-success me-2"></i>Zero Synthetic Additives
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                                <span class="text-muted small"><i class="fa fa-shield-alt me-1 text-success"></i>FSSAI Certified Safety</span>
+                                <a href="menu.html" class="btn btn-outline-primary rounded-pill px-4 py-2 om-service-cta fw-semibold">
+                                    Explore Menu <i class="fa fa-arrow-right ms-1"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.18">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-cart-plus text-primary mb-4"></i>
-                                <h5>Online Order</h5>
-                                <p>When the Going Gets Tough, The Tough Go Online Order We are On here !</p>
+
+                    <!-- Service 3: Online Order -->
+                    <div class="col-lg-6 col-md-6 om-reveal" data-om-delay="0.15">
+                        <div class="service-item rounded-4 h-100 p-4 p-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="om-service-icon-box m-0">
+                                        <i class="fa fa-cart-plus"></i>
+                                    </div>
+                                    <span class="badge om-service-pill">
+                                        <i class="fa fa-bolt text-warning me-1"></i>Express Delivery
+                                    </span>
+                                </div>
+                                <h4 class="mb-3 fw-bold text-dark">Online Order</h4>
+                                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.65;">
+                                    Seamless online ordering experience with real-time kitchen tracking, contactless doorstep delivery, and insulated spill-proof packaging.
+                                </p>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Average 30-Min Delivery
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Live Order Status Tracking
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Insulated Hot-Seal Boxes
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-primary me-2"></i>Free Delivery over ₹299
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                                <span class="text-muted small"><i class="fa fa-motorcycle me-1 text-primary"></i>Express Doorstep Dispatch</span>
+                                <a href="menu.html" class="btn btn-primary rounded-pill px-4 py-2 om-service-cta fw-bold text-dark">
+                                    Order Online <i class="fa fa-shopping-bag ms-1"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.24">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-headset text-primary mb-4"></i>
-                                <h5>24/7 Service</h5>
-                                <p>Dynamic Service For 24/7 We are Always Serve The better with You Join Us.</p>
+
+                    <!-- Service 4: 24/7 Support -->
+                    <div class="col-lg-6 col-md-6 om-reveal" data-om-delay="0.20">
+                        <div class="service-item rounded-4 h-100 p-4 p-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="om-service-icon-box m-0">
+                                        <i class="fa fa-headset"></i>
+                                    </div>
+                                    <span class="badge om-service-pill">
+                                        <i class="fa fa-clock text-info me-1"></i>24/7 Concierge
+                                    </span>
+                                </div>
+                                <h4 class="mb-3 fw-bold text-dark">24/7 Hospitality Support</h4>
+                                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.65;">
+                                    Dedicated hospitality team available round-the-clock for custom banquet reservations, wedding catering inquiries, and special requests.
+                                </p>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-info me-2"></i>Instant Table Assistance
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-info me-2"></i>Event &amp; Party Bookings
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-info me-2"></i>Phone &amp; WhatsApp Concierge
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa fa-check-circle text-info me-2"></i>Guest Satisfaction Guarantee
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                                <span class="text-muted small"><i class="fa fa-phone-alt me-1 text-info"></i>Direct Line: +91 9389734344</span>
+                                <a href="contact.html" class="btn btn-outline-primary rounded-pill px-4 py-2 om-service-cta fw-semibold">
+                                    Contact Support <i class="fa fa-headset ms-1"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.06">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-user-tie text-primary mb-4"></i>
-                                <h5>Master Chefs</h5>
-                                <p>It's gonna take more than a clever cook to get that right. It's gonna take a magician.</p>
-                            </div>
+                </div>
+
+                <!-- Service Highlights / Trust Banner -->
+                <div class="om-service-banner mt-5 p-4 p-md-5 rounded-4 position-relative overflow-hidden text-start om-reveal" data-om-delay="0.1">
+                    <div class="row align-items-center position-relative" style="z-index: 2;">
+                        <div class="col-lg-8 mb-4 mb-lg-0">
+                            <span class="badge bg-primary text-dark fw-bold px-3 py-2 rounded-pill mb-2">
+                                <i class="fa fa-star me-1"></i> Hospitality Promise
+                            </span>
+                            <h2 class="text-white fw-bold mb-2">Ready For A Memorable Dining Experience?</h2>
+                            <p class="text-white-50 mb-0">Book your table online using our interactive 2D floor plan or order your favorites directly to your doorstep.</p>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.12">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-utensils text-primary mb-4"></i>
-                                <h5>Quality Food</h5>
-                                <p>We're all so busy we don't make time to enjoy our lives, good company and good food</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.18">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-cart-plus text-primary mb-4"></i>
-                                <h5>Online Order</h5>
-                                <p>When the Going Gets Tough, The Tough Go Online Order We are On here !</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6 om-reveal" data-om-delay="0.24">
-                        <div class="service-item rounded pt-3">
-                            <div class="p-4">
-                                <i class="fa fa-3x fa-headset text-primary mb-4"></i>
-                                <h5>24/7 Service</h5>
-                                <p>Dynamic Service For 24/7 We are Always Serve The better with You Join Us.</p>
-                            </div>
+                        <div class="col-lg-4 text-lg-end d-flex flex-wrap justify-content-lg-end gap-2">
+                            <a href="booking.html" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-lg">
+                                <i class="fa fa-chair me-2"></i>Book A Table
+                            </a>
+                            <a href="menu.html" class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-semibold">
+                                <i class="fa fa-book-open me-2"></i>View Menu
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -181,11 +340,11 @@
                 <div class="row g-5">
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Company</h4>
-                        <a class="btn btn-link" href="">About Us</a>
-                        <a class="btn btn-link" href="">Contact Us</a>
-                        <a class="btn btn-link" href="">Reservation</a>
-                        <a class="btn btn-link" href="">Privacy Policy</a>
-                        <a class="btn btn-link" href="">Terms & Condition</a>
+                        <a class="btn btn-link" href="about.html">About Us</a>
+                        <a class="btn btn-link" href="contact.html">Contact Us</a>
+                        <a class="btn btn-link" href="booking.html">Reservation</a>
+                        <a class="btn btn-link" href="about.html">Privacy Policy</a>
+                        <a class="btn btn-link" href="about.html">Terms &amp; Condition</a>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Contact</h4>
@@ -193,10 +352,10 @@
                         <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 9389734344</p>
                         <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@OmRestaurant.com</p>
                         <div class="d-flex pt-2">
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://youtube.com" target="_blank" rel="noopener"><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -209,9 +368,9 @@
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Newsletter</h4>
                         <p>Share Your Email to Subscribe.</p>
-                        <form action="/newsletter" method="post">
+                        <form action="/newsletter" method="post" data-om-vanish-form>
                             <div class="position-relative mx-auto" style="max-width: 400px;">
-                                <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="email" placeholder="Your email" name="email" required>
+                                <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="email" placeholder="Share your email..." name="email" data-om-vanish="true" required>
                                 <button type="submit" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
                             </div>
                         </form>
@@ -222,17 +381,17 @@
                 <div class="copyright">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">OmRestaurant</a>, All Right Reserved. 
+                            &copy; <a class="border-bottom" href="index.html">OmRestaurant</a>, All Right Reserved. 
 							
 							<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-							Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/">Gopal Gupta</a>
+							Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/" target="_blank" rel="noopener">Gopal Gupta</a>
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
-                                <a href="">Home</a>
-                                <a href="">Cookies</a>
-                                <a href="">Help</a>
-                                <a href="">FQAs</a>
+                                <a href="index.html">Home</a>
+                                <a href="about.html">Cookies</a>
+                                <a href="contact.html">Help</a>
+                                <a href="about.html">FAQs</a>
                             </div>
                         </div>
                     </div>
@@ -266,6 +425,7 @@
     <script src="lib/emailjs/email.min.js"></script>
     <script src="js/email-config.js"></script>
     <script src="js/email-service.js"></script>
+    <script src="js/vanish-input.js"></script>
     <script src="js/main.js"></script>
 </body>
 

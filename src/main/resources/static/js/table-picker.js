@@ -204,6 +204,10 @@
             slotTime: "",
             liveConnected: false,
             loading: false,
+            zoom: 1,
+            lastPulseTableId: null,
+            altSlotsKey: "",
+            altSlots: [],
             abortController: null
         };
 
@@ -270,6 +274,126 @@
             return "available";
         }
 
+        function prefersReducedMotion() {
+            return Boolean(
+                window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            );
+        }
+
+        function animateTableHover(g, table, isHovering) {
+            if (typeof window.gsap === "undefined" || prefersReducedMotion() || !g || !g.getClientRects().length) return;
+            window.gsap.to(g, {
+                scale: isHovering ? 1.05 : 1,
+                svgOrigin: table.cx + " " + table.cy,
+                duration: isHovering ? 0.22 : 0.18,
+                ease: "power2.out",
+                overwrite: "auto"
+            });
+        }
+
+        function shakeFloorPlans() {
+            if (typeof window.gsap === "undefined" || prefersReducedMotion()) return;
+            mountRoots.forEach(function (root) {
+                var svg = root.querySelector(".om-fp-svg");
+                if (!svg || !svg.getClientRects().length) return;
+                window.gsap.fromTo(
+                    svg,
+                    { x: -7 },
+                    { x: 0, duration: 0.45, ease: "elastic.out(1.2, 0.35)", clearProps: "x" }
+                );
+            });
+        }
+
+        function triggerSelectionPulse(svg, g, table) {
+            if (typeof window.gsap === "undefined" || prefersReducedMotion() || !svg || !svg.getClientRects().length) return;
+            var ripple;
+            if (table.shape === "round") {
+                ripple = createSvgEl("circle", {
+                    class: "om-fp-ripple",
+                    cx: table.cx,
+                    cy: table.cy,
+                    r: (table.r || 26) + 4
+                });
+            } else {
+                var rw = (table.w || 58) + 12;
+                var rh = (table.h || 48) + 12;
+                ripple = createSvgEl("rect", {
+                    class: "om-fp-ripple",
+                    x: table.cx - rw / 2,
+                    y: table.cy - rh / 2,
+                    width: rw,
+                    height: rh,
+                    rx: table.shape === "booth" ? "16" : "13"
+                });
+            }
+            svg.appendChild(ripple);
+            window.gsap.fromTo(
+                ripple,
+                { scale: 0.9, opacity: 0.9 },
+                {
+                    scale: 1.42,
+                    opacity: 0,
+                    svgOrigin: table.cx + " " + table.cy,
+                    duration: 0.65,
+                    ease: "power2.out",
+                    onComplete: function () {
+                        if (ripple && ripple.parentNode) {
+                            ripple.parentNode.removeChild(ripple);
+                        }
+                    }
+                }
+            );
+            window.gsap.fromTo(
+                g,
+                { scale: 0.94 },
+                {
+                    scale: 1,
+                    svgOrigin: table.cx + " " + table.cy,
+                    duration: 0.38,
+                    ease: "back.out(2.2)"
+                }
+            );
+        }
+
+        function formatSuggestedTables(minCapacity) {
+            var candidates = state.tables.filter(function (t) {
+                return Number(t.capacity) >= Number(minCapacity) &&
+                    String(t.status).toLowerCase() === "available" &&
+                    t.available !== false;
+            });
+            if (!candidates.length) {
+                candidates = state.tables.filter(function (t) {
+                    return Number(t.capacity) >= Number(minCapacity);
+                });
+            }
+            if (!candidates.length) {
+                return "our Private VIP Booths (up to 8 seats)";
+            }
+            var std = candidates.filter(function (t) { return t.zone !== "Booth"; }).map(function (t) { return t.table_number; });
+            var booths = candidates.filter(function (t) { return t.zone === "Booth"; }).map(function (t) { return t.table_number; });
+            var parts = [];
+            if (std.length) {
+                parts.push((std.length > 1 ? "Tables " : "Table ") + std.join(", "));
+            }
+            if (booths.length) {
+                parts.push((booths.length > 1 ? "Booths " : "Booth ") + booths.join(", "));
+            }
+            return parts.join(" or ");
+        }
+
+        function shiftTimeString(timeStr, deltaMinutes) {
+            if (!timeStr || timeStr.indexOf(":") === -1) return "";
+            var segs = timeStr.split(":");
+            var hh = parseInt(segs[0], 10);
+            var mm = parseInt(segs[1], 10);
+            if (isNaN(hh) || isNaN(mm)) return "";
+            var total = hh * 60 + mm + deltaMinutes;
+            if (total < 9 * 60 || total > 22 * 60 + 30) return "";
+            var outH = String(Math.floor(total / 60)).padStart(2, "0");
+            var outM = String(total % 60).padStart(2, "0");
+            return outH + ":" + outM;
+        }
+
         function updateFormSync() {
             var selected = getTableById(state.selectedTableId);
             if (hiddenTableInput) {
@@ -278,6 +402,10 @@
                 hiddenTableInput.dataset.tableZone = selected ? String(selected.zone) : "";
                 hiddenTableInput.dataset.tableCapacity = selected ? String(selected.capacity) : "";
             }
+
+            var selectedLabel = selected
+                ? "Selected: Table " + selected.table_number + " (Seats " + selected.capacity + ") — " + (ZONE_TITLES[selected.zone] || selected.zone)
+                : "";
 
             if (formSummaryEl) {
                 var textEl = formSummaryEl.querySelector("[data-om-table-summary-text]");
@@ -296,32 +424,92 @@
                     if (clearBtn) clearBtn.hidden = true;
                 }
             }
+
+            mountRoots.forEach(function (root) {
+                var stickyCard = root.querySelector("[data-om-fp-sticky-summary]");
+                var stickyText = root.querySelector("[data-om-fp-sticky-text]");
+                var stickyClear = root.querySelector("[data-om-fp-sticky-clear]");
+                if (stickyCard) {
+                    stickyCard.classList.toggle("has-selection", Boolean(selected));
+                }
+                if (stickyText) {
+                    stickyText.textContent = selected
+                        ? selectedLabel
+                        : "No table selected — auto-assign best available, or tap an open table above";
+                }
+                if (stickyClear) {
+                    stickyClear.hidden = !selected;
+                }
+            });
+
+            var modalFooterSummary = document.querySelector("[data-om-modal-footer-summary]");
+            if (modalFooterSummary) {
+                modalFooterSummary.textContent = selected
+                    ? "Table " + selected.table_number + " (" + (ZONE_TITLES[selected.zone] || selected.zone) + ", " + selected.capacity + " Seats)"
+                    : "Auto-assign best available table";
+            }
         }
 
-        function setSelectedTable(tableId) {
+        function highlightBookingForm(selectedTable) {
+            var formCard = document.getElementById("om-booking-form-card");
+            if (!formCard) return;
+
+            formCard.classList.remove("is-table-picked");
+            void formCard.offsetWidth;
+            formCard.classList.add("is-table-picked");
+
+            // On smaller screens where form stacks below map, gently scroll form into view
+            if (window.innerWidth < 1200) {
+                var modalEl = document.getElementById("floorPlanModal");
+                var modalOpen = modalEl && modalEl.classList.contains("show");
+                if (!modalOpen) {
+                    var rect = formCard.getBoundingClientRect();
+                    if (rect.top > window.innerHeight * 0.72) {
+                        var targetY = rect.top + window.scrollY - 90;
+                        if (window.gsap && window.ScrollToPlugin && !prefersReducedMotion()) {
+                            window.gsap.to(window, {
+                                duration: 0.75,
+                                ease: "power2.out",
+                                scrollTo: { y: targetY, autoKill: true }
+                            });
+                        } else {
+                            window.scrollTo({ top: targetY, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+                        }
+                    }
+                }
+            }
+        }
+
+        function setSelectedTable(tableId, withPulse) {
             state.selectedTableId = tableId !== null ? Number(tableId) : null;
+            state.lastPulseTableId = withPulse && tableId !== null ? Number(tableId) : null;
             updateFormSync();
             renderAll();
+            if (withPulse && tableId !== null) {
+                highlightBookingForm(getTableById(tableId));
+            }
         }
 
         function validateSelectedAgainstPartySize() {
             if (state.selectedTableId === null) return;
             var current = getTableById(state.selectedTableId);
             if (!current) {
-                setSelectedTable(null);
+                setSelectedTable(null, false);
                 return;
             }
             var eff = getEffectiveTableState(current);
             if (eff === "reserved") {
-                setSelectedTable(null);
+                setSelectedTable(null, false);
+                shakeFloorPlans();
                 notifyUser(
                     "Table " + current.table_number + " is reserved for the selected time slot. Please choose an available table.",
                     "error"
                 );
             } else if (eff === "too-small") {
-                setSelectedTable(null);
+                setSelectedTable(null, false);
+                shakeFloorPlans();
                 notifyUser(
-                    "Table " + current.table_number + " seats up to " + current.capacity + " guests and was deselected for your party of " + state.partySize + ".",
+                    "Party size increased to " + state.partySize + " — Table " + current.table_number + " seats " + current.capacity + ". Please select a larger table (" + formatSuggestedTables(state.partySize) + ").",
                     "info"
                 );
             }
@@ -352,19 +540,19 @@
             }
             if (eff === "too-small") {
                 notifyUser(
-                    "Table " + table.table_number + " seats up to " + table.capacity + " guests. Please choose a highlighted table with " + state.partySize + "+ seats.",
+                    "Table " + table.table_number + " seats up to " + table.capacity + " guests. Please choose " + formatSuggestedTables(state.partySize) + " for " + state.partySize + " guests.",
                     "error"
                 );
                 return;
             }
 
             if (state.selectedTableId !== null && Number(state.selectedTableId) === Number(table.id)) {
-                setSelectedTable(null);
+                setSelectedTable(null, false);
                 notifyUser("Table " + table.table_number + " deselected.", "info");
                 return;
             }
 
-            setSelectedTable(table.id);
+            setSelectedTable(table.id, true);
             notifyUser(
                 "Selected Table " + table.table_number + " (" + (ZONE_TITLES[table.zone] || table.zone) + ", " + table.capacity + " seats).",
                 "success"
@@ -392,10 +580,10 @@
             glowFilter.appendChild(createSvgEl("feDropShadow", { dx: "0", dy: "0", stdDeviation: "5", "flood-color": "#FD6B10", "flood-opacity": "0.65" }));
             defs.appendChild(glowFilter);
 
-            // Subtle diagonal hatching pattern for reserved tables
+            // High-contrast diagonal hatching pattern for reserved tables (colorblind-accessible)
             var hatch = createSvgEl("pattern", { id: hatchId, width: "8", height: "8", patternTransform: "rotate(45 0 0)", patternUnits: "userSpaceOnUse" });
-            hatch.appendChild(createSvgEl("rect", { width: "8", height: "8", fill: "#283244" }));
-            hatch.appendChild(createSvgEl("line", { x1: "0", y1: "0", x2: "0", y2: "8", stroke: "rgba(255,255,255,0.12)", "stroke-width": "2" }));
+            hatch.appendChild(createSvgEl("rect", { width: "8", height: "8", fill: "#2b3549" }));
+            hatch.appendChild(createSvgEl("line", { x1: "0", y1: "0", x2: "0", y2: "8", stroke: "rgba(229, 231, 235, 0.34)", "stroke-width": "1.8" }));
             defs.appendChild(hatch);
 
             // Ambient blueprint dot grid
@@ -653,23 +841,39 @@
                 });
 
                 g.addEventListener("mouseenter", function (event) {
+                    if (eff === "available" || eff === "selected") {
+                        animateTableHover(g, table, true);
+                    }
                     positionTooltip(event.clientX, event.clientY);
                 });
 
                 g.addEventListener("mouseleave", function () {
+                    if (eff === "available" || eff === "selected") {
+                        animateTableHover(g, table, false);
+                    }
                     if (tooltipEl) tooltipEl.hidden = true;
                 });
 
                 g.addEventListener("focus", function () {
+                    if (eff === "available" || eff === "selected") {
+                        animateTableHover(g, table, true);
+                    }
                     var rect = g.getBoundingClientRect();
                     positionTooltip(rect.left + rect.width / 2, rect.top);
                 });
 
                 g.addEventListener("blur", function () {
+                    if (eff === "available" || eff === "selected") {
+                        animateTableHover(g, table, false);
+                    }
                     if (tooltipEl) tooltipEl.hidden = true;
                 });
 
                 g.addEventListener("click", function () {
+                    if (wrapEl && wrapEl.dataset.omDragged === "true") {
+                        wrapEl.dataset.omDragged = "false";
+                        return;
+                    }
                     handleTableActivation(table);
                 });
 
@@ -681,7 +885,202 @@
                 });
 
                 svg.appendChild(g);
+
+                if (state.lastPulseTableId !== null && Number(state.lastPulseTableId) === Number(table.id) && eff === "selected") {
+                    triggerSelectionPulse(svg, g, table);
+                }
             });
+        }
+
+        function updateZoomUI(root) {
+            var wrap = root.querySelector(".om-fp-canvas-wrap");
+            var labelEl = root.querySelector("[data-om-zoom-label]");
+            var zoomInBtn = root.querySelector("[data-om-zoom-in]");
+            var zoomOutBtn = root.querySelector("[data-om-zoom-out]");
+            var zoomResetBtn = root.querySelector("[data-om-zoom-reset]");
+
+            if (wrap) {
+                wrap.style.setProperty("--om-fp-zoom", String(state.zoom));
+                wrap.classList.toggle("is-zoomed", state.zoom > 1.02);
+            }
+            if (labelEl) {
+                labelEl.textContent = Math.round(state.zoom * 100) + "%";
+            }
+            if (zoomOutBtn) zoomOutBtn.disabled = state.zoom <= 1.01;
+            if (zoomInBtn) zoomInBtn.disabled = state.zoom >= 2.39;
+            if (zoomResetBtn) zoomResetBtn.disabled = state.zoom <= 1.01;
+        }
+
+        function setZoomLevel(nextZoom, originWrap) {
+            var clamped = Math.max(1, Math.min(2.4, Math.round(nextZoom * 100) / 100));
+            if (Math.abs(clamped - state.zoom) < 0.01) return;
+
+            var ratio = clamped / state.zoom;
+            state.zoom = clamped;
+
+            mountRoots.forEach(function (root) {
+                var wrap = root.querySelector(".om-fp-canvas-wrap");
+                var prevCenterX = 0;
+                var prevCenterY = 0;
+                if (wrap && (wrap === originWrap || !originWrap)) {
+                    prevCenterX = wrap.scrollLeft + wrap.clientWidth / 2;
+                    prevCenterY = wrap.scrollTop + wrap.clientHeight / 2;
+                }
+                updateZoomUI(root);
+                if (wrap && (wrap === originWrap || !originWrap) && clamped > 1) {
+                    wrap.scrollLeft = Math.max(0, Math.round(prevCenterX * ratio - wrap.clientWidth / 2));
+                    wrap.scrollTop = Math.max(0, Math.round(prevCenterY * ratio - wrap.clientHeight / 2));
+                } else if (wrap && clamped <= 1) {
+                    wrap.scrollLeft = 0;
+                    wrap.scrollTop = 0;
+                }
+            });
+        }
+
+        function applySlotDateTime(dateStr, timeStr) {
+            if (!dateStr || !timeStr) return;
+            var combined = dateStr + "T" + timeStr;
+            if (dateInput && dateInput.value !== combined) {
+                dateInput.value = combined;
+            }
+            state.slotDate = dateStr;
+            state.slotTime = timeStr;
+            refreshAvailability();
+        }
+
+        function probeAlternativeSlots() {
+            if (!state.slotDate || !state.slotTime || !state.liveConnected) return;
+            var key = state.slotDate + "|" + state.slotTime + "|" + state.partySize + "|" + state.activeZone;
+            if (state.altSlotsKey === key) return;
+            state.altSlotsKey = key;
+
+            var offsets = [-30, 30, 60];
+            var candidateTimes = offsets
+                .map(function (delta) { return shiftTimeString(state.slotTime, delta); })
+                .filter(Boolean);
+
+            if (!candidateTimes.length) {
+                state.altSlots = [];
+                return;
+            }
+
+            Promise.all(
+                candidateTimes.map(function (tStr) {
+                    var qs = new URLSearchParams({ date: state.slotDate, time: tStr }).toString();
+                    return fetch("/api/tables/availability?" + qs, { headers: { Accept: "application/json" } })
+                        .then(function (r) { return r.ok ? r.json() : []; })
+                        .then(function (rows) {
+                            var list = Array.isArray(rows) ? rows : (rows && rows.tables ? rows.tables : []);
+                            var openCount = list.filter(function (row) {
+                                var zoneOk = state.activeZone === "ALL" || row.zone === state.activeZone;
+                                var avail = row.available !== undefined ? Boolean(row.available) : String(row.status).toLowerCase() === "available";
+                                return zoneOk && avail && Number(row.capacity) >= Number(state.partySize);
+                            }).length;
+                            return { time: tStr, openCount: openCount };
+                        })
+                        .catch(function () {
+                            return { time: tStr, openCount: 0 };
+                        });
+                })
+            ).then(function (results) {
+                if (state.altSlotsKey !== key) return;
+                state.altSlots = results.filter(function (item) { return item.openCount > 0; }).slice(0, 2);
+                mountRoots.forEach(updateSuggestionBanner);
+            });
+        }
+
+        function updateSuggestionBanner(root) {
+            var banner = root.querySelector("[data-om-fp-suggestion]");
+            if (!banner) return;
+
+            if (state.loading) {
+                banner.hidden = true;
+                return;
+            }
+
+            var matchingInView = state.tables.filter(function (t) {
+                var eff = getEffectiveTableState(t);
+                var zoneMatch = state.activeZone === "ALL" || t.zone === state.activeZone;
+                return zoneMatch && (eff === "available" || eff === "selected");
+            }).length;
+
+            if (matchingInView > 0) {
+                banner.hidden = true;
+                banner.innerHTML = "";
+                return;
+            }
+
+            // Active zone or current slot has 0 qualifying tables -> offer helpful one-tap actions
+            var altZones = DEFAULT_LAYOUT.zones.map(function (z) {
+                var freeCount = state.tables.filter(function (t) {
+                    var eff = getEffectiveTableState(t);
+                    return t.zone === z.id && (eff === "available" || eff === "selected");
+                }).length;
+                return { id: z.id, label: z.shortLabel, freeCount: freeCount };
+            }).filter(function (item) {
+                return item.id !== state.activeZone && item.freeCount > 0;
+            });
+
+            var zoneTitle = state.activeZone === "ALL"
+                ? "All dining zones"
+                : (ZONE_TITLES[state.activeZone] || state.activeZone);
+            var slotTimeText = state.slotTime || "this time slot";
+
+            banner.innerHTML = "";
+            var textWrap = document.createElement("div");
+            textWrap.className = "om-fp-suggestion-banner__text";
+            var icon = document.createElement("i");
+            icon.className = "fa fa-lightbulb";
+            icon.setAttribute("aria-hidden", "true");
+            var msg = document.createElement("span");
+            msg.textContent = zoneTitle + " has no open tables for " + state.partySize + "+ guests at " + slotTimeText + ".";
+            textWrap.appendChild(icon);
+            textWrap.appendChild(msg);
+
+            var actions = document.createElement("div");
+            actions.className = "om-fp-suggestion-actions";
+
+            var fallbackTimes = state.altSlots.length
+                ? state.altSlots
+                : [shiftTimeString(state.slotTime, -30), shiftTimeString(state.slotTime, 30)]
+                    .filter(Boolean)
+                    .map(function (t) { return { time: t, openCount: null }; });
+
+            fallbackTimes.slice(0, 2).forEach(function (slotInfo) {
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "om-fp-suggestion-btn";
+                btn.textContent = slotInfo.openCount
+                    ? "Check " + slotInfo.time + " (" + slotInfo.openCount + " open)"
+                    : "Try " + slotInfo.time;
+                btn.addEventListener("click", function () {
+                    applySlotDateTime(state.slotDate, slotInfo.time);
+                    notifyUser("Checking availability for " + slotInfo.time + "...", "info");
+                });
+                actions.appendChild(btn);
+            });
+
+            if (altZones.length) {
+                var topZone = altZones[0];
+                var zBtn = document.createElement("button");
+                zBtn.type = "button";
+                zBtn.className = "om-fp-suggestion-btn";
+                zBtn.textContent = "View " + topZone.label + " (" + topZone.freeCount + " free)";
+                zBtn.addEventListener("click", function () {
+                    state.activeZone = topZone.id;
+                    renderAll();
+                    mountRoots.forEach(function (mountEl) {
+                        scrollCanvasToZone(mountEl, topZone.id);
+                    });
+                });
+                actions.appendChild(zBtn);
+            }
+
+            banner.appendChild(textWrap);
+            banner.appendChild(actions);
+            banner.hidden = false;
+
+            probeAlternativeSlots();
         }
 
         function renderMountRoot(root, mountIdx) {
@@ -698,6 +1097,8 @@
             if (svg) {
                 renderFloorSvg(svg, tooltip, wrap, mountIdx);
             }
+
+            updateZoomUI(root);
 
             if (liveBadge) {
                 liveBadge.textContent = state.loading
@@ -749,12 +1150,15 @@
                 btn.classList.toggle("is-active", z === state.activeZone);
                 btn.setAttribute("aria-pressed", z === state.activeZone ? "true" : "false");
             });
+
+            updateSuggestionBanner(root);
         }
 
         function renderAll() {
             mountRoots.forEach(function (root, idx) {
                 renderMountRoot(root, idx);
             });
+            state.lastPulseTableId = null;
             updateFormSync();
         }
 
@@ -773,12 +1177,92 @@
                     targetLeft = Math.max(0, Math.round(wrap.scrollWidth * ratioCenter - wrap.clientWidth / 2));
                 }
             }
-            var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            var reduced = prefersReducedMotion();
             if (typeof wrap.scrollTo === "function") {
                 wrap.scrollTo({ left: targetLeft, behavior: reduced ? "auto" : "smooth" });
             } else {
                 wrap.scrollLeft = targetLeft;
             }
+        }
+
+        function bindPinchAndPan(root) {
+            var wrap = root.querySelector(".om-fp-canvas-wrap");
+            if (!wrap) return;
+
+            var pinchStartDist = 0;
+            var pinchStartZoom = 1;
+
+            function getTouchDist(t1, t2) {
+                var dx = t1.clientX - t2.clientX;
+                var dy = t1.clientY - t2.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            wrap.addEventListener("touchstart", function (event) {
+                if (event.touches.length === 2) {
+                    pinchStartDist = getTouchDist(event.touches[0], event.touches[1]);
+                    pinchStartZoom = state.zoom;
+                }
+            }, { passive: true });
+
+            wrap.addEventListener("touchmove", function (event) {
+                if (event.touches.length === 2 && pinchStartDist > 0) {
+                    event.preventDefault();
+                    var dist = getTouchDist(event.touches[0], event.touches[1]);
+                    setZoomLevel(pinchStartZoom * (dist / pinchStartDist), wrap);
+                }
+            }, { passive: false });
+
+            wrap.addEventListener("touchend", function (event) {
+                if (event.touches.length < 2) {
+                    pinchStartDist = 0;
+                }
+            });
+
+            // Desktop mouse drag-to-pan when zoomed in
+            var dragging = false;
+            var dragMoved = false;
+            var dragStartX = 0;
+            var dragStartY = 0;
+            var scrollStartX = 0;
+            var scrollStartY = 0;
+
+            wrap.addEventListener("mousedown", function (event) {
+                if (state.zoom <= 1.02 || event.button !== 0) return;
+                dragging = true;
+                dragMoved = false;
+                wrap.dataset.omDragged = "false";
+                dragStartX = event.clientX;
+                dragStartY = event.clientY;
+                scrollStartX = wrap.scrollLeft;
+                scrollStartY = wrap.scrollTop;
+                wrap.style.cursor = "grabbing";
+            });
+
+            window.addEventListener("mousemove", function (event) {
+                if (!dragging) return;
+                var dx = event.clientX - dragStartX;
+                var dy = event.clientY - dragStartY;
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    dragMoved = true;
+                    wrap.dataset.omDragged = "true";
+                }
+                if (dragMoved) {
+                    wrap.scrollLeft = scrollStartX - dx;
+                    wrap.scrollTop = scrollStartY - dy;
+                }
+            });
+
+            window.addEventListener("mouseup", function () {
+                if (!dragging) return;
+                dragging = false;
+                wrap.style.cursor = state.zoom > 1.02 ? "grab" : "";
+                if (dragMoved) {
+                    window.setTimeout(function () {
+                        wrap.dataset.omDragged = "false";
+                    }, 80);
+                }
+            });
         }
 
         function buildMountMarkup(root) {
@@ -811,45 +1295,87 @@
                 '      <span class="om-fp-live-pill" data-om-fp-live-badge>Checking availability...</span>',
                 '    </div>',
                 '  </div>',
-                '  <div class="om-fp-zones" role="group" aria-label="Filter dining zones">',
-                '    <button type="button" class="om-fp-zone-btn is-active" data-om-zone-btn="ALL" aria-pressed="true">All Zones</button>',
-                '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Window" aria-pressed="false">Window (2)</button>',
-                '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Main" aria-pressed="false">Main Room (4-6)</button>',
-                '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Patio" aria-pressed="false">Patio (2-4)</button>',
-                '    <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Booth" aria-pressed="false">VIP Booths (6-8)</button>',
+                '  <div class="om-fp-nav-bar">',
+                '    <div class="om-fp-zones" role="group" aria-label="Filter dining zones">',
+                '      <button type="button" class="om-fp-zone-btn is-active" data-om-zone-btn="ALL" aria-pressed="true">All Zones</button>',
+                '      <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Window" aria-pressed="false">Window (2)</button>',
+                '      <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Main" aria-pressed="false">Main Room (4-6)</button>',
+                '      <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Patio" aria-pressed="false">Patio (2-4)</button>',
+                '      <button type="button" class="om-fp-zone-btn" data-om-zone-btn="Booth" aria-pressed="false">VIP Booths (6-8)</button>',
+                '    </div>',
+                '    <div class="om-fp-legend" aria-label="Table availability key">',
+                '      <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--available"></i> Available</span>',
+                '      <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--selected"></i> Selected</span>',
+                '      <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--reserved"></i> Booked</span>',
+                '      <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--small"></i> Too Small</span>',
+                '    </div>',
                 '  </div>',
-                '  <div class="om-fp-mobile-hint"><i class="fa fa-arrows-alt-h text-primary" aria-hidden="true"></i><span>Swipe map sideways to explore Patio &amp; VIP Booths, or tap a zone pill above.</span></div>',
-                '  <div class="om-fp-canvas-wrap">',
-                '    <svg class="om-fp-svg" preserveAspectRatio="xMidYMid meet"></svg>',
-                '    <div class="om-fp-tooltip" hidden></div>',
+                '  <div class="om-fp-suggestion-banner" data-om-fp-suggestion hidden></div>',
+                '  <div class="om-fp-mobile-hint"><i class="fa fa-arrows-alt-h text-primary" aria-hidden="true"></i><span>Pinch to zoom, swipe sideways for Patio &amp; VIP Booths, or tap a zone pill above.</span></div>',
+                '  <div class="om-fp-canvas-shell">',
+                '    <div class="om-fp-zoom-controls" aria-label="Floor plan zoom controls">',
+                '      <button type="button" class="om-fp-zoom-btn" data-om-zoom-out aria-label="Zoom out">&minus;</button>',
+                '      <span class="om-fp-zoom-level" data-om-zoom-label>100%</span>',
+                '      <button type="button" class="om-fp-zoom-btn" data-om-zoom-in aria-label="Zoom in">+</button>',
+                '      <button type="button" class="om-fp-zoom-btn" data-om-zoom-reset aria-label="Reset zoom">1x</button>',
+                '    </div>',
+                '    <div class="om-fp-canvas-wrap">',
+                '      <svg class="om-fp-svg" preserveAspectRatio="xMidYMid meet"></svg>',
+                '      <div class="om-fp-tooltip" hidden></div>',
+                '    </div>',
                 '  </div>',
-                '  <div class="om-fp-legend">',
-                '    <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--available"></i> Available</span>',
-                '    <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--selected"></i> Selected</span>',
-                '    <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--reserved"></i> Reserved</span>',
-                '    <span class="om-fp-legend__item"><i class="om-fp-swatch om-fp-swatch--small"></i> Too Small for Party</span>',
+                '  <div class="om-fp-sticky-summary" data-om-fp-sticky-summary>',
+                '    <div class="om-fp-sticky-summary__content">',
+                '      <span class="om-fp-sticky-summary__icon" aria-hidden="true"><i class="fa fa-chair"></i></span>',
+                '      <span class="om-fp-sticky-summary__text" data-om-fp-sticky-text>No table selected — auto-assign best available, or tap an open table above</span>',
+                '    </div>',
+                '    <button type="button" class="om-fp-sticky-summary__clear" data-om-fp-sticky-clear hidden>Clear Selection</button>',
                 '  </div>',
                 '</div>'
             ].join("\n");
 
             var syncDate = root.querySelector("[data-om-fp-date]");
             var syncParty = root.querySelector("[data-om-fp-party]");
+            var zoomInBtn = root.querySelector("[data-om-zoom-in]");
+            var zoomOutBtn = root.querySelector("[data-om-zoom-out]");
+            var zoomResetBtn = root.querySelector("[data-om-zoom-reset]");
+            var stickyClearBtn = root.querySelector("[data-om-fp-sticky-clear]");
+            var wrapEl = root.querySelector(".om-fp-canvas-wrap");
 
             if (syncDate) {
                 syncDate.addEventListener("change", function () {
                     var dt = splitDateTimeValue(syncDate.value);
-                    if (dateInput && dateInput.value !== syncDate.value) {
-                        dateInput.value = syncDate.value;
-                    }
-                    state.slotDate = dt.date;
-                    state.slotTime = dt.time;
-                    refreshAvailability();
+                    applySlotDateTime(dt.date, dt.time);
                 });
             }
 
             if (syncParty) {
                 syncParty.addEventListener("change", function () {
                     setPartySize(syncParty.value, true);
+                });
+            }
+
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener("click", function () {
+                    setZoomLevel(state.zoom + 0.25, wrapEl);
+                });
+            }
+
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener("click", function () {
+                    setZoomLevel(state.zoom - 0.25, wrapEl);
+                });
+            }
+
+            if (zoomResetBtn) {
+                zoomResetBtn.addEventListener("click", function () {
+                    setZoomLevel(1, wrapEl);
+                });
+            }
+
+            if (stickyClearBtn) {
+                stickyClearBtn.addEventListener("click", function () {
+                    setSelectedTable(null, false);
                 });
             }
 
@@ -862,6 +1388,8 @@
                     });
                 });
             });
+
+            bindPinchAndPan(root);
         }
 
         function mergeAvailabilityRows(apiTables) {
@@ -892,6 +1420,8 @@
             var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
             state.abortController = controller;
             state.loading = true;
+            state.altSlotsKey = "";
+            state.altSlots = [];
             renderAll();
 
             var params = new URLSearchParams();
@@ -950,15 +1480,176 @@
             var clearBtn = formSummaryEl.querySelector("[data-om-clear-table]");
             if (clearBtn) {
                 clearBtn.addEventListener("click", function () {
-                    setSelectedTable(null);
+                    setSelectedTable(null, false);
                 });
             }
         }
 
+        var modalConfirmBtn = document.querySelector("[data-om-modal-confirm]");
+        if (modalConfirmBtn) {
+            modalConfirmBtn.addEventListener("click", function () {
+                var selected = getTableById(state.selectedTableId);
+                if (selected) {
+                    notifyUser(
+                        "Confirmed Table " + selected.table_number + " (" + (ZONE_TITLES[selected.zone] || selected.zone) + ") — complete your details to book.",
+                        "success"
+                    );
+                }
+            });
+        }
+
+        function bindFormValidation(bookingForm) {
+            if (!bookingForm || bookingForm.dataset.omValidationBound === "true") return;
+            bookingForm.dataset.omValidationBound = "true";
+
+            var nameEl = bookingForm.querySelector("input[name='name']");
+            var emailEl = bookingForm.querySelector("input[name='email']");
+            var dateEl = bookingForm.querySelector("input[name='date']");
+            var peopleEl = bookingForm.querySelector("input[name='people']") || bookingForm.querySelector("select[name='people']");
+
+            function setFieldFeedback(inputEl, isValid, message) {
+                if (!inputEl) return;
+                var fieldId = inputEl.id || inputEl.name;
+                var feedbackEl = bookingForm.querySelector("[data-om-feedback-for='" + fieldId + "']");
+                if (isValid) {
+                    inputEl.classList.add("is-valid");
+                    inputEl.classList.remove("is-invalid");
+                    if (feedbackEl) {
+                        feedbackEl.textContent = "";
+                        feedbackEl.style.display = "none";
+                    }
+                } else {
+                    inputEl.classList.add("is-invalid");
+                    inputEl.classList.remove("is-valid");
+                    if (feedbackEl) {
+                        feedbackEl.textContent = message || "Please check this field.";
+                        feedbackEl.style.display = "block";
+                    }
+                }
+            }
+
+            function clearFieldFeedback(inputEl) {
+                if (!inputEl) return;
+                var fieldId = inputEl.id || inputEl.name;
+                var feedbackEl = bookingForm.querySelector("[data-om-feedback-for='" + fieldId + "']");
+                inputEl.classList.remove("is-valid", "is-invalid");
+                if (feedbackEl) {
+                    feedbackEl.textContent = "";
+                    feedbackEl.style.display = "none";
+                }
+            }
+
+            function validateName(showInvalid) {
+                if (!nameEl) return true;
+                var val = nameEl.value.trim();
+                if (val.length >= 2) {
+                    setFieldFeedback(nameEl, true);
+                    return true;
+                }
+                if (showInvalid) {
+                    setFieldFeedback(nameEl, false, "Please enter your name (at least 2 letters).");
+                } else if (!val) {
+                    clearFieldFeedback(nameEl);
+                }
+                return false;
+            }
+
+            function validateEmail(showInvalid) {
+                if (!emailEl) return true;
+                var val = emailEl.value.trim();
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (emailRegex.test(val)) {
+                    setFieldFeedback(emailEl, true);
+                    return true;
+                }
+                if (showInvalid) {
+                    setFieldFeedback(emailEl, false, "Enter a valid email (e.g. name@example.com).");
+                } else if (!val) {
+                    clearFieldFeedback(emailEl);
+                }
+                return false;
+            }
+
+            function validateDate(showInvalid) {
+                if (!dateEl) return true;
+                var val = dateEl.value;
+                if (val && !isNaN(new Date(val).getTime())) {
+                    setFieldFeedback(dateEl, true);
+                    return true;
+                }
+                if (showInvalid) {
+                    setFieldFeedback(dateEl, false, "Select reservation date & time.");
+                } else if (!val) {
+                    clearFieldFeedback(dateEl);
+                }
+                return false;
+            }
+
+            function validatePeople(showInvalid) {
+                if (!peopleEl) return true;
+                var val = parseInt(peopleEl.value, 10);
+                if (!isNaN(val) && val >= 1 && val <= 100) {
+                    setFieldFeedback(peopleEl, true);
+                    return true;
+                }
+                if (showInvalid) {
+                    setFieldFeedback(peopleEl, false, "Enter between 1 and 100 guests.");
+                } else {
+                    clearFieldFeedback(peopleEl);
+                }
+                return false;
+            }
+
+            if (nameEl) {
+                nameEl.addEventListener("input", function () { validateName(false); });
+                nameEl.addEventListener("blur", function () { validateName(true); });
+            }
+            if (emailEl) {
+                emailEl.addEventListener("input", function () { validateEmail(false); });
+                emailEl.addEventListener("blur", function () { validateEmail(true); });
+            }
+            if (dateEl) {
+                dateEl.addEventListener("change", function () { validateDate(true); });
+                dateEl.addEventListener("blur", function () { validateDate(true); });
+            }
+            if (peopleEl) {
+                peopleEl.addEventListener("input", function () { validatePeople(false); });
+                peopleEl.addEventListener("change", function () { validatePeople(true); });
+            }
+
+            bookingForm.addEventListener("submit", function (e) {
+                var nOk = validateName(true);
+                var eOk = validateEmail(true);
+                var dOk = validateDate(true);
+                var pOk = validatePeople(true);
+
+                if (!nOk || !eOk || !dOk || !pOk) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    notifyUser("Please check the highlighted reservation fields.", "error");
+                    var firstBad = bookingForm.querySelector(".is-invalid");
+                    if (firstBad) firstBad.focus();
+                }
+            }, true);
+        }
+
+        function resetFormValidationState(bookingForm) {
+            if (!bookingForm) return;
+            bookingForm.querySelectorAll(".is-valid, .is-invalid").forEach(function (el) {
+                el.classList.remove("is-valid", "is-invalid");
+            });
+            bookingForm.querySelectorAll("[data-om-feedback-for]").forEach(function (el) {
+                el.textContent = "";
+                el.style.display = "none";
+            });
+        }
+
         if (form) {
+            bindFormValidation(form);
             form.addEventListener("reset", function () {
                 window.setTimeout(function () {
-                    setSelectedTable(null);
+                    setSelectedTable(null, false);
+                    resetFormValidationState(form);
                     if (dateInput && !dateInput.value) {
                         dateInput.value = buildDefaultDateTimeLocal();
                         var dt = splitDateTimeValue(dateInput.value);
@@ -971,12 +1662,13 @@
         }
 
         document.addEventListener("om:booking-complete", function () {
-            setSelectedTable(null);
+            setSelectedTable(null, false);
+            resetFormValidationState(form);
             refreshAvailability();
         });
 
         document.addEventListener("om:table-conflict", function () {
-            setSelectedTable(null);
+            setSelectedTable(null, false);
             refreshAvailability();
         });
 

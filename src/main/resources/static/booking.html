@@ -9,7 +9,11 @@
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" href="img/favicon.png">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,9 +51,9 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0">
+        <div class="position-relative p-0 w-100">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
+                <a href="index.html" class="navbar-brand p-0">
                     <h1 class="text-primary m-0"><i class="fa fa-utensils me-3"></i>OM Restaurant</h1>
                     <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
@@ -72,17 +76,17 @@
                         </div>
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                     </div>
-                    <a href="" class="btn btn-primary py-2 px-4">Book A Table</a>
+                    <a href="booking.html" class="btn btn-primary py-2 px-4">Book A Table</a>
                 </div>
             </nav>
 
-            <div class="container-xxl py-5 bg-dark hero-header mb-5">
+            <div class="w-100 py-5 bg-dark hero-header mb-5">
                 <div class="container text-center my-5 pt-5 pb-4">
                     <h1 class="display-3 text-white mb-3 animated slideInDown">Booking</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center text-uppercase">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                            <li class="breadcrumb-item"><a href="about.html">About</a></li>
                             <li class="breadcrumb-item text-white active" aria-current="page">Booking</li>
                         </ol>
                     </nav>
@@ -94,88 +98,104 @@
 
         <!-- Reservation Start -->
         <div class="container-xxl py-5 px-3 px-lg-4">
-            <div class="row g-0 rounded overflow-hidden shadow-lg">
-                <div class="col-xl-7 om-floorplan-panel p-3 p-sm-4 om-reveal" data-om-delay="0.06">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                        <div>
-                            <h5 class="section-title ff-secondary text-start text-primary fw-normal mb-1">Interactive Dining Map</h5>
-                            <h3 class="text-white mb-0">Choose Your Preferred Table</h3>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#floorPlanModal">
-                                <i class="fa fa-expand me-1 text-primary"></i> Full View
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-light btn-play" data-bs-toggle="modal"
-                                data-src="https://www.youtube.com/embed/MJu1E4Z3eZo?si=BqV4vltkfwVqlctq"
-                                data-bs-target="#videoModal">
-                                <i class="fa fa-play me-1 text-primary"></i> Tour
-                            </button>
-                        </div>
-                    </div>
-                    <div id="om-table-picker" data-om-table-picker="inline"></div>
-                </div>
-                <div class="col-xl-5 bg-dark d-flex align-items-center">
-                    <div class="p-3 p-sm-4 p-xl-5 w-100 om-reveal" data-om-delay="0.14">
-                        <h5 class="section-title ff-secondary text-start text-primary fw-normal">Reservation</h5>
-                        <h1 class="text-white mb-4">Book A Table Online</h1>
-                        <form action="/bookings" method="post">
-                            <input type="hidden" name="table_id" id="selectedTableId" value="">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div id="om-selected-table-pill" class="om-selected-table-pill">
-                                        <span class="om-selected-table-pill__left">
-                                            <i class="fa fa-chair" aria-hidden="true"></i>
-                                            <span data-om-table-summary-text>Auto-assign best table, or click a table on the 2D Floor Plan</span>
-                                        </span>
-                                        <button type="button" class="om-selected-table-pill__clear" data-om-clear-table aria-label="Clear selected table" hidden>&times;</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="name" placeholder="Your Name"
-                                            name="name" required>
-                                        <label for="name">Your Name</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="email" class="form-control" id="email" placeholder="Your Email"
-                                            name="email" required>
-                                        <label for="email">Your Email</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating date" id="date3" data-target-input="nearest">
-                                        <input type="datetime-local" class="form-control" id="datetime"
-                                            placeholder="Date & Time"
-                                            name="date" required>
-                                        <label for="datetime">Date & Time</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="number" name="people" id="select1" class="form-select" min="1" max="100" value="2" required>
-                                        <label for="select1">No Of People</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Special Request" id="message"
-                                            style="height: 100px" name="request"></textarea>
-                                        <label for="message">Special Request</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn btn-primary w-100 py-3" type="submit" name="save">Book Now</button>
-                                </div>
+            <div class="row g-4 align-items-stretch">
+                <div class="col-xl-7">
+                    <div class="om-saas-card om-floorplan-panel p-3 p-sm-4 h-100 om-reveal" data-om-delay="0.06">
+                        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                            <div>
+                                <h5 class="section-title ff-secondary text-start text-primary fw-normal mb-1">Interactive Dining Map</h5>
+                                <h2 class="om-saas-heading mb-1">Choose Your Preferred Table</h2>
+                                <p class="om-saas-subheading mb-0">Select your seat in real-time or filter by dining atmosphere.</p>
                             </div>
-                        </form>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-sm om-ghost-btn" data-bs-toggle="modal" data-bs-target="#floorPlanModal">
+                                    <i class="fa fa-expand me-1 text-primary"></i> Full View
+                                </button>
+                                <button type="button" class="btn btn-sm om-ghost-btn btn-play" data-bs-toggle="modal"
+                                    data-src="https://www.youtube.com/embed/MJu1E4Z3eZo?si=BqV4vltkfwVqlctq"
+                                    data-bs-target="#videoModal">
+                                    <i class="fa fa-play me-1 text-primary"></i> Tour
+                                </button>
+                            </div>
+                        </div>
+                        <div id="om-table-picker" data-om-table-picker="inline"></div>
+                    </div>
+                </div>
+                <div class="col-xl-5">
+                    <div id="om-booking-form-card" class="om-saas-card om-booking-form-panel p-3 p-sm-4 p-xl-4 h-100 d-flex align-items-center om-reveal" data-om-delay="0.14">
+                        <div class="w-100">
+                            <h5 class="section-title ff-secondary text-start text-primary fw-normal mb-1">Reservation</h5>
+                            <h2 class="om-saas-heading om-saas-heading--xl mb-1">Book A Table Online</h2>
+                            <p class="om-saas-subheading mb-4">Instant seat lock &amp; priority booking confirmation.</p>
+                            <form action="/bookings" method="post" novalidate data-om-booking-form>
+                                <input type="hidden" name="table_id" id="selectedTableId" value="">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div id="om-selected-table-pill" class="om-selected-table-pill">
+                                            <span class="om-selected-table-pill__left">
+                                                <i class="fa fa-chair" aria-hidden="true"></i>
+                                                <span data-om-table-summary-text>Auto-assign best table, or click a table on the 2D Floor Plan</span>
+                                            </span>
+                                            <button type="button" class="om-selected-table-pill__clear" data-om-clear-table aria-label="Clear selected table" hidden>&times;</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating om-field-group">
+                                            <input type="text" class="form-control om-form-input" id="name" placeholder="e.g. Aarav Sharma"
+                                                name="name" autocomplete="name" minlength="2" required>
+                                            <label for="name">Your Name</label>
+                                            <span class="om-field-status-icon" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="om-field-feedback" data-om-feedback-for="name"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating om-field-group">
+                                            <input type="email" class="form-control om-form-input" id="email" placeholder="you@example.com"
+                                                name="email" autocomplete="email" required>
+                                            <label for="email">Your Email</label>
+                                            <span class="om-field-status-icon" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="om-field-feedback" data-om-feedback-for="email"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating date om-field-group" id="date3" data-target-input="nearest">
+                                            <input type="datetime-local" class="form-control om-form-input" id="datetime"
+                                                placeholder="Date & Time"
+                                                name="date" required>
+                                            <label for="datetime">Date &amp; Time</label>
+                                            <span class="om-field-status-icon" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="om-field-feedback" data-om-feedback-for="datetime"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating om-field-group">
+                                            <input type="number" name="people" id="select1" class="form-control om-form-input" min="1" max="100" value="2" placeholder="2" required>
+                                            <label for="select1">No Of People</label>
+                                            <span class="om-field-status-icon" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="om-field-feedback" data-om-feedback-for="select1"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating om-field-group">
+                                            <textarea class="form-control om-form-input" placeholder="Allergies, celebration note, or seating preference" id="message"
+                                                style="height: 100px" name="request"></textarea>
+                                            <label for="message">Special Request (Optional)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 pt-1">
+                                        <button class="btn btn-primary w-100 py-3 om-submit-btn" type="submit" name="save">
+                                            <i class="fa fa-calendar-check me-2" aria-hidden="true"></i>Confirm &amp; Book Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="modal fade" id="floorPlanModal" tabindex="-1" aria-labelledby="floorPlanModalLabel" aria-hidden="true">
+        <div class="modal fade om-fp-modal" id="floorPlanModal" tabindex="-1" aria-labelledby="floorPlanModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -183,12 +203,21 @@
                             <h5 class="modal-title text-white mb-0" id="floorPlanModalLabel">
                                 <i class="fa fa-utensils text-primary me-2"></i>OmRestaurant — 2D Dining Floor Plan
                             </h5>
-                            <small class="text-white-50">Click an available table matching your party size to link it to your reservation</small>
+                            <small class="text-white-50">Tap or click an available table matching your party size to link it to your reservation</small>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-3 p-md-4">
                         <div data-om-table-picker="modal"></div>
+                    </div>
+                    <div class="modal-footer om-fp-modal-footer">
+                        <div class="om-fp-modal-footer__meta">
+                            <span class="om-fp-modal-footer__eyebrow">Current Selection</span>
+                            <strong class="om-fp-modal-footer__title" data-om-modal-footer-summary>Auto-assign best available table</strong>
+                        </div>
+                        <button type="button" class="btn btn-primary om-fp-confirm-btn px-4 py-2" data-bs-dismiss="modal" data-om-modal-confirm>
+                            <i class="fa fa-check-circle me-2" aria-hidden="true"></i>Confirm Table
+                        </button>
                     </div>
                 </div>
             </div>
@@ -220,23 +249,22 @@
                 <div class="row g-5">
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Company</h4>
-                        <a class="btn btn-link" href="">About Us</a>
-                        <a class="btn btn-link" href="">Contact Us</a>
-                        <a class="btn btn-link" href="">Reservation</a>
-                        <a class="btn btn-link" href="">Privacy Policy</a>
-                        <a class="btn btn-link" href="">Terms & Condition</a>
+                        <a class="btn btn-link" href="about.html">About Us</a>
+                        <a class="btn btn-link" href="contact.html">Contact Us</a>
+                        <a class="btn btn-link" href="booking.html">Reservation</a>
+                        <a class="btn btn-link" href="about.html">Privacy Policy</a>
+                        <a class="btn btn-link" href="about.html">Terms &amp; Condition</a>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Contact</h4>
-                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Gandhi Road, Khurja, Bulandshahr, Uttar
-                            Pradesh 203131</p>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Gandhi Road, Khurja, Bulandshahr, Uttar Pradesh 203131</p>
                         <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 9389734344</p>
                         <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@OmRestaurant.com</p>
                         <div class="d-flex pt-2">
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://youtube.com" target="_blank" rel="noopener"><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -249,13 +277,10 @@
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Newsletter</h4>
                         <p>Share Your Email to Subscribe.</p>
-                        <form action="/newsletter" method="post">
+                        <form action="/newsletter" method="post" data-om-vanish-form>
                             <div class="position-relative mx-auto" style="max-width: 400px;">
-                                <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="email"
-                                    placeholder="Your email" name="email" required>
-                                <button type="submit"
-                                    class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2"
-                                    name="subscribe">Subscribe</button>
+                                <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="email" placeholder="Share your email..." name="email" data-om-vanish="true" required>
+                                <button type="submit" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
                             </div>
                         </form>
                     </div>
@@ -265,17 +290,15 @@
                 <div class="copyright">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">OmRestaurant</a>, All Right Reserved.
-
-                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/">Gopal Gupta</a>
+                            &copy; <a class="border-bottom" href="index.html">OmRestaurant</a>, All Right Reserved. 
+							Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/" target="_blank" rel="noopener">Gopal Gupta</a>
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
-                                <a href="">Home</a>
-                                <a href="">Cookies</a>
-                                <a href="">Help</a>
-                                <a href="">FQAs</a>
+                                <a href="index.html">Home</a>
+                                <a href="about.html">Cookies</a>
+                                <a href="contact.html">Help</a>
+                                <a href="about.html">FAQs</a>
                             </div>
                         </div>
                     </div>
@@ -310,6 +333,8 @@
     <script src="lib/emailjs/email.min.js"></script>
     <script src="js/email-config.js"></script>
     <script src="js/email-service.js"></script>
+    <script src="js/vanish-input.js"></script>
+    <script src="js/menu-order.js"></script>
     <script src="js/main.js"></script>
 </body>
 

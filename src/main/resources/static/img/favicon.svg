@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="omFavGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEA116"/>
+      <stop offset="100%" stop-color="#FD6B10"/>
+    </linearGradient>
+  </defs>
+  <!-- Brand rounded rectangle -->
+  <rect width="64" height="64" rx="14" fill="url(#omFavGrad)"/>
+  <!-- Pure veg green dot indicator -->
+  <circle cx="50" cy="14" r="5" fill="#22C55E"/>
+  <circle cx="50" cy="14" r="2.2" fill="#FFFFFF"/>
+  <!-- Fork -->
+  <path d="M20 16h3v10h-3zm4 0h3v10h-3zm4 0h3v10h-3z" fill="#FFFFFF"/>
+  <path d="M20 25h11c0 3-2 5-4.5 5.5V49c0 .6-.4 1-1 1h-2c-.6 0-1-.4-1-1V30.5c-2.5-.5-4.5-2.5-4.5-5.5z" fill="#FFFFFF"/>
+  <!-- Spoon -->
+  <ellipse cx="41" cy="23" rx="5.5" ry="8.5" fill="#FFFFFF"/>
+  <rect x="39" y="30" width="4" height="19" rx="1" fill="#FFFFFF"/>
+</svg>

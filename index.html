@@ -3,21 +3,45 @@
 
 <head>
     <meta charset="utf-8">
-
-    <title>OM Restaurant</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
+
+    <!-- Primary SEO Title: Must include exact brand name and main target location -->
+    <title>Om Restaurant Khurja | Authentic Pure Veg Dining & Family Restaurant</title>
+
+    <!-- Meta Description: Keep under 160 characters, include keywords and a call to action -->
+    <meta name="description" content="Looking for the best pure vegetarian dining in Khurja? Visit Om Restaurant on Gandhi Road for authentic North Indian thalis, tandoori specialties, and family dining. Book a table online!">
+
+    <!-- Local SEO Keywords -->
+    <meta name="keywords" content="omrestaurant khurja, om family restaurant khurja, pure veg restaurant khurja, best restaurants in khurja, gandhi road khurja dining">
+    <meta name="author" content="OM Restaurant Khurja">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.omrestaurant.com/">
+
+    <!-- Open Graph Tags for Social Media Sharing (WhatsApp, Facebook, etc.) -->
+    <meta property="og:title" content="Om Restaurant Khurja | Pure Vegetarian Dining">
+    <meta property="og:description" content="Experience authentic North Indian vegetarian cuisine and family dining on Gandhi Road, Khurja.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.omrestaurant.com/">
+    <meta property="og:image" content="https://www.omrestaurant.com/img/hero-bg.jpg">
+    <meta property="og:site_name" content="Om Restaurant Khurja">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Om Restaurant Khurja | Pure Vegetarian Dining">
+    <meta name="twitter:description" content="Authentic pure vegetarian cuisine, North Indian thalis & family dining on Gandhi Road, Khurja.">
+    <meta name="twitter:image" content="https://www.omrestaurant.com/img/hero-bg.jpg">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" href="img/favicon.png">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -33,13 +57,76 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+
+    <!-- Local Business Structured Data (Schema Markup) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Om Restaurant",
+      "alternateName": "Om Family Restaurant",
+      "image": "https://www.omrestaurant.com/img/hero-bg.jpg",
+      "@id": "https://www.omrestaurant.com/#restaurant",
+      "url": "https://www.omrestaurant.com/",
+      "telephone": "+919389734344",
+      "priceRange": "₹200-₹400",
+      "menu": "https://www.omrestaurant.com/menu.html",
+      "acceptsReservations": "True",
+      "servesCuisine": [
+        "North Indian",
+        "Pure Vegetarian",
+        "Chinese",
+        "South Indian"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Gandhi Road",
+        "addressLocality": "Khurja",
+        "addressRegion": "Uttar Pradesh",
+        "postalCode": "203131",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 28.2542,
+        "longitude": 77.8546
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
+          "opens": "09:00",
+          "closes": "21:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Sunday",
+          "opens": "10:00",
+          "closes": "20:00"
+        }
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "650",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+    </script>
 </head>
 
 <body>
     <div class="container-xxl bg-white p-0">
         <!-- Spinner Start -->
-        <div id="spinner"
-            class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -48,11 +135,10 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0">
+        <div class="position-relative p-0 w-100">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
+                <a href="index.html" class="navbar-brand p-0">
                     <h1 class="text-primary m-0"><i class="fa fa-utensils me-3"></i>OM Restaurant</h1>
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars"></span>
@@ -73,24 +159,39 @@
                         </div>
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                     </div>
-                    <a href="booking.html" class="btn btn-primary py-2 px-4">Book A Table</a>
+                    <a href="booking.html" class="btn btn-primary py-2 px-4 rounded-pill fw-bold">Reserve Table</a>
                 </div>
             </nav>
 
-            <div class="container-xxl py-5 bg-dark hero-header mb-5">
-                <div class="container my-5 py-5">
-                    <div class="row align-items-center g-5">
-                        <div class="col-lg-6 text-center text-lg-start">
-                            <h1 class="display-3 text-white animated slideInLeft">Enjoy Our<br>Delicious Meal</h1>
-                            <p class="text-white animated slideInLeft mb-4 pb-2">The best food comes from the best
-                                ingredients , Harmony of health and culinary excellence, The ultimate destination for
-                                healthy gastronomy,Wholesome cuisine that delights the senses, Revive your body, delight
-                                your taste buds, Indulge in healthful flavors with every dish</p>
-                            <a href="booking.html" class="btn btn-primary py-sm-3 px-sm-5 me-3 animated slideInLeft">Book A
-                                Table</a>
+            <div class="w-100 bg-dark hero-header hero-header-home mb-5">
+                <div class="container py-2">
+                    <div class="row align-items-center g-4 g-lg-5">
+                        <div class="col-lg-6 text-center text-lg-start hero-home-content">
+                            <div class="om-urgency-badge d-inline-flex align-items-center mb-3 animated slideInDown">
+                                <span class="om-urgency-dot"></span>
+                                <span class="small fw-semibold text-white">🔥 <strong class="text-warning">3 tables reserved</strong> in the last hour &mdash; Few spots left for dinner</span>
+                            </div>
+                            <h1 class="display-3 text-white animated slideInLeft mb-3">Best Pure Veg<br>Dining in Khurja</h1>
+                            <p class="text-white-50 animated slideInLeft mb-4 fs-5" style="max-width: 520px; line-height: 1.6;">
+                                Royal North Indian curries, hand-ground spices &amp; heartfelt family hospitality.<br class="d-none d-sm-inline">
+                                Khurja’s premier 100% pure vegetarian dining tradition for 15+ years.
+                            </p>
+                            <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-3 flex-wrap mb-4">
+                                <a href="booking.html" class="btn btn-primary py-3 px-4 px-sm-5 rounded-pill fw-bold shadow-lg animated slideInLeft">
+                                    <i class="fa fa-calendar-check me-2"></i>Book A Table
+                                </a>
+                                <a href="menu.html" class="btn btn-outline-light py-3 px-4 px-sm-5 rounded-pill fw-semibold animated slideInLeft">
+                                    <i class="fa fa-book-open me-2"></i>Explore Menu
+                                </a>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-3 gap-sm-4 text-white-50 small animated slideInLeft">
+                                <span><i class="fa fa-leaf text-success me-1"></i>100% Pure Veg</span>
+                                <span><i class="fa fa-award text-warning me-1"></i>15+ Years Mastery</span>
+                                <span><i class="fa fa-map-marker-alt text-primary me-1"></i>Gandhi Road, Khurja</span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 text-center text-lg-end overflow-hidden">
-                            <img class="img-fluid" src="img/hero.png" alt="">
+                        <div class="col-lg-6 text-center text-lg-end overflow-hidden hero-home-img-wrap">
+                            <img class="img-fluid" src="img/hero.png" alt="Authentic North Indian Pure Veg Thali at Om Restaurant Khurja">
                         </div>
                     </div>
                 </div>
@@ -105,31 +206,35 @@
                     <div class="col-lg-6">
                         <div class="row g-3">
                             <div class="col-6 text-start">
-                                <img class="img-fluid rounded w-100 om-reveal" data-om-reveal="zoom" data-om-delay="0.1" src="img/about-1.jpg">
+                                <img class="img-fluid rounded w-100 om-reveal" data-om-reveal="zoom" data-om-delay="0.1" src="img/about-1.jpg" alt="Om Restaurant Khurja Family Dining Ambiance">
                             </div>
                             <div class="col-6 text-start">
-                                <img class="img-fluid rounded w-75 om-reveal" data-om-reveal="zoom" data-om-delay="0.2" src="img/about-2.jpg" style="margin-top: 25%;">
+                                <img class="img-fluid rounded w-75 om-reveal" data-om-reveal="zoom" data-om-delay="0.2" src="img/about-2.jpg" alt="Master Chef Preparing Fresh Food at Om Restaurant Khurja" style="margin-top: 25%;">
                             </div>
                             <div class="col-6 text-end">
-                                <img class="img-fluid rounded w-75 om-reveal" data-om-reveal="zoom" data-om-delay="0.3" src="img/about-3.jpg">
+                                <img class="img-fluid rounded w-75 om-reveal" data-om-reveal="zoom" data-om-delay="0.3" src="img/about-3.jpg" alt="Special Authentic Pure Vegetarian Thali at Om Restaurant Khurja">
                             </div>
                             <div class="col-6 text-end">
-                                <img class="img-fluid rounded w-100 om-reveal" data-om-reveal="zoom" data-om-delay="0.4" src="img/about-4.jpg">
+                                <img class="img-fluid rounded w-100 om-reveal" data-om-reveal="zoom" data-om-delay="0.4" src="img/about-4.jpg" alt="Fresh Desserts and North Indian Delicacies in Khurja">
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6 om-reveal" data-om-delay="0.15">
                         <h5 class="section-title ff-secondary text-start text-primary fw-normal">About Us</h5>
                         <h1 class="mb-4">Welcome to <i class="fa fa-utensils text-primary me-2"></i>OM Restaurant</h1>
-                        <p class="mb-4">One cannot think well, love well, sleep well, if one has not dined well.</p>
-                        <p class="mb-4">Food, in the end, in our own tradition, is something holy. It's not about nutrients and calories. It's about sharing. It's about honesty. It's about identity.</p>
+                        <p class="mb-4 text-muted" style="line-height: 1.7;">
+                            For over 15 years, OM Restaurant has been the cornerstone of pure vegetarian dining in Khurja, blending royal Mughlai curries, fragrant basmati rice dishes, and traditional tandoori delights prepared with farm-sourced produce and pure desi ghee.
+                        </p>
+                        <p class="mb-4 text-muted" style="line-height: 1.7;">
+                            Food in our tradition is holy. We honor this sacred bond with uncompromising kitchen hygiene, artisanal ground masalas, and warm family service that turns every meal into a celebration.
+                        </p>
                         <div class="row g-4 mb-4">
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center border-start border-5 border-primary px-3">
                                     <h1 class="flex-shrink-0 display-5 text-primary mb-0" data-toggle="counter-up">15</h1>
                                     <div class="ps-4">
-                                        <p class="mb-0">Years of</p>
-                                        <h6 class="text-uppercase mb-0">Experience</h6>
+                                        <p class="mb-0 text-muted">Years of</p>
+                                        <h6 class="text-uppercase mb-0 fw-bold">Experience</h6>
                                     </div>
                                 </div>
                             </div>
@@ -137,81 +242,225 @@
                                 <div class="d-flex align-items-center border-start border-5 border-primary px-3">
                                     <h1 class="flex-shrink-0 display-5 text-primary mb-0" data-toggle="counter-up">50</h1>
                                     <div class="ps-4">
-                                        <p class="mb-0">Popular</p>
-                                        <h6 class="text-uppercase mb-0">Master Chefs</h6>
+                                        <p class="mb-0 text-muted">Popular</p>
+                                        <h6 class="text-uppercase mb-0 fw-bold">Signature Dishes</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <a class="btn btn-primary py-3 px-5 mt-2" href="">Read More</a>
+                        <a class="btn btn-primary py-3 px-5 mt-2 rounded-pill fw-bold shadow" href="about.html">
+                            Read More <i class="fa fa-arrow-right ms-2"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
         <!-- About End -->
 
-
-        <!-- Team Start -->
-        <div class="container-xxl pt-5 pb-3">
+        <!-- Featured Signature Delights Start -->
+        <div class="container-xxl py-5">
             <div class="container">
-                <div class="text-center om-reveal" data-om-delay="0.05">
-                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Team Members</h5>
-                    <h1 class="mb-5">Our Master Chefs</h1>
+                <div class="text-center om-reveal mb-5" data-om-delay="0.05">
+                    <span class="badge fw-bold px-3 py-2 rounded-pill mb-2" style="background-color: rgba(254, 161, 22, 0.12) !important; color: #FD6B10 !important; font-size: 0.85rem;">
+                        <i class="fa fa-utensils me-2"></i>Chef's Handcrafted Specialties
+                    </span>
+                    <h1 class="mb-3">Featured Signature Delights</h1>
+                    <p class="text-muted mx-auto" style="max-width: 620px;">
+                        Explore our guests' most beloved pure vegetarian recipes, prepared fresh daily with royal heritage spices and pure desi ghee.
+                    </p>
                 </div>
                 <div class="row g-4">
-                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.08">
-                        <div class="team-item text-center rounded overflow-hidden">
-                            <div class="rounded-circle overflow-hidden m-4">
-                                <img class="img-fluid" src="img/team-1.jpg" alt="">
+                    <!-- Dish 1 -->
+                    <div class="col-lg-4 col-md-6 om-reveal" data-om-delay="0.06">
+                        <div class="om-featured-dish-card">
+                            <div class="om-dish-thumb-wrap">
+                                <img src="img/shahi-paneer-thali-hd.jpg" alt="Shahi Paneer Thali" loading="lazy">
+                                <span class="om-veg-badge" title="100% Pure Vegetarian"></span>
+                                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute top-0 end-0 m-3 rounded-pill small">
+                                    <i class="fa fa-star me-1"></i>4.9 (240+)
+                                </span>
                             </div>
-                            <h5 class="mb-0">Full Name</h5>
-                            <small>Designation</small>
-                            <div class="d-flex justify-content-center mt-3">
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            <div class="p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0 fw-bold text-dark">Shahi Paneer Thali</h5>
+                                    <span class="fs-5 fw-bold text-primary">&#8377;280</span>
+                                </div>
+                                <p class="text-muted small mb-3 flex-grow-1">
+                                    Royal cottage cheese in cashew cream gravy, slow-simmered Dal Makhani, jeera pulao, butter naan, and hot gulab jamun.
+                                </p>
+                                <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                    <span class="badge bg-light text-muted small"><i class="fa fa-pepper-hot text-danger me-1"></i>Medium Spice</span>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold om-quick-view-btn"
+                                        data-bs-toggle="modal" data-bs-target="#dishQuickViewModal"
+                                        data-dish-name="Shahi Paneer Thali"
+                                        data-dish-price="280"
+                                        data-dish-img="img/shahi-paneer-thali-hd.jpg"
+                                        data-dish-desc="A royal feast featuring soft cottage cheese simmered in velvety cashew tomato gravy, served with slow-simmered Dal Makhani handi, fragrant basmati jeera rice, crisp clay-tandoor butter naan, fresh cucumber salad, and hot desi ghee gulab jamun."
+                                        data-dish-spice="Medium Spice"
+                                        data-dish-time="15-20 mins"
+                                        data-dish-rating="4.9 / 5 (240+ reviews)"
+                                        data-dish-ingredients="Malai Paneer, Cashews, Cream, Black Lentils, Basmati Rice, Desi Ghee">
+                                        <i class="fa fa-eye me-1"></i>Quick View
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.16">
-                        <div class="team-item text-center rounded overflow-hidden">
-                            <div class="rounded-circle overflow-hidden m-4">
-                                <img class="img-fluid" src="img/team-2.jpg" alt="">
+                    <!-- Dish 2 -->
+                    <div class="col-lg-4 col-md-6 om-reveal" data-om-delay="0.12">
+                        <div class="om-featured-dish-card">
+                            <div class="om-dish-thumb-wrap">
+                                <img src="img/paneer-masala-dosa-hd.jpg" alt="Special Paneer Dosa" loading="lazy">
+                                <span class="om-veg-badge" title="100% Pure Vegetarian"></span>
+                                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute top-0 end-0 m-3 rounded-pill small">
+                                    <i class="fa fa-star me-1"></i>5.0 (180+)
+                                </span>
                             </div>
-                            <h5 class="mb-0">Full Name</h5>
-                            <small>Designation</small>
-                            <div class="d-flex justify-content-center mt-3">
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            <div class="p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0 fw-bold text-dark">Special Paneer Dosa</h5>
+                                    <span class="fs-5 fw-bold text-primary">&#8377;180</span>
+                                </div>
+                                <p class="text-muted small mb-3 flex-grow-1">
+                                    Golden crisp butter crepe generously stuffed with seasoned grated paneer, roasted mustard seeds, and fresh curry leaves.
+                                </p>
+                                <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                    <span class="badge bg-light text-muted small"><i class="fa fa-pepper-hot text-warning me-1"></i>Mild Spice</span>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold om-quick-view-btn"
+                                        data-bs-toggle="modal" data-bs-target="#dishQuickViewModal"
+                                        data-dish-name="Special Paneer Dosa"
+                                        data-dish-price="180"
+                                        data-dish-img="img/paneer-masala-dosa-hd.jpg"
+                                        data-dish-desc="Praised by local food lovers and architects visiting Khurja. Ultra-crispy fermented rice-lentil crepe cooked in country butter, filled with spiced fresh grated paneer, served with steaming hot sambar and fresh coconut chutney."
+                                        data-dish-spice="Mild Spice"
+                                        data-dish-time="10-15 mins"
+                                        data-dish-rating="5.0 / 5 (180+ reviews)"
+                                        data-dish-ingredients="Fermented Batter, Fresh Grated Paneer, Amul Butter, Mustard Seeds, Curry Leaves">
+                                        <i class="fa fa-eye me-1"></i>Quick View
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Dish 3 -->
+                    <div class="col-lg-4 col-md-6 om-reveal" data-om-delay="0.18">
+                        <div class="om-featured-dish-card">
+                            <div class="om-dish-thumb-wrap">
+                                <img src="img/paneer-butter-masala-hd.jpg" alt="Paneer Butter Masala" loading="lazy">
+                                <span class="om-veg-badge" title="100% Pure Vegetarian"></span>
+                                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute top-0 end-0 m-3 rounded-pill small">
+                                    <i class="fa fa-star me-1"></i>4.9 (310+)
+                                </span>
+                            </div>
+                            <div class="p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0 fw-bold text-dark">Paneer Butter Masala</h5>
+                                    <span class="fs-5 fw-bold text-primary">&#8377;240</span>
+                                </div>
+                                <p class="text-muted small mb-3 flex-grow-1">
+                                    Tender melt-in-mouth cottage cheese cubes slow-cooked in a rich velvety tomato-cashew makhani gravy enriched with fresh cream.
+                                </p>
+                                <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                    <span class="badge bg-light text-muted small"><i class="fa fa-pepper-hot text-danger me-1"></i>Chef's Choice</span>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold om-quick-view-btn"
+                                        data-bs-toggle="modal" data-bs-target="#dishQuickViewModal"
+                                        data-dish-name="Paneer Butter Masala"
+                                        data-dish-price="240"
+                                        data-dish-img="img/paneer-butter-masala-hd.jpg"
+                                        data-dish-desc="Our signature crowd-pleasing gravy dish. Fresh dairy cottage cheese simmered in a silky tomato reduction with roasted cashews, freshly ground cardamom, fenugreek leaves (kasoori methi), and pure country butter."
+                                        data-dish-spice="Rich & Balanced"
+                                        data-dish-time="15 mins"
+                                        data-dish-rating="4.9 / 5 (310+ reviews)"
+                                        data-dish-ingredients="Farm Cottage Cheese, Ripe Tomatoes, Cashews, Cream, Butter, Kasoori Methi">
+                                        <i class="fa fa-eye me-1"></i>Quick View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-5 om-reveal" data-om-delay="0.1">
+                    <a href="menu.html" class="btn btn-primary py-3 px-5 rounded-pill fw-bold shadow">
+                        <i class="fa fa-book-open me-2"></i>Explore Full Menu (80+ Vegetarian Specialties)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Featured Signature Delights End -->
+
+
+        <!-- Team Start -->
+        <div class="container-xxl py-5 bg-light position-relative">
+            <div class="container py-3">
+                <div class="text-center om-reveal mb-5" data-om-delay="0.05">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Team Members</h5>
+                    <h1 class="mb-3">Our Master Chefs</h1>
+                    <p class="text-muted mx-auto" style="max-width: 600px;">
+                        Meet the passionate culinary artisans bringing royal heritage recipes, hand-ground spices, and pure vegetarian perfection to your table.
+                    </p>
+                </div>
+                <div class="row g-4">
+                    <!-- Chef 1 -->
+                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.06">
+                        <div class="team-item text-center">
+                            <div class="team-img-wrap">
+                                <img src="img/team-1.jpg" alt="Chef Vikram Sharma">
+                            </div>
+                            <h5 class="mb-1">Vikram Sharma</h5>
+                            <span class="team-designation">Executive Head Chef</span>
+                            <p class="team-specialty">15+ years mastering North Indian royal gravies, Mughlai vegetarian curries, and signature thalis.</p>
+                            <div class="team-social-links">
+                                <a class="btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                                <a class="btn-social" href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chef 2 -->
+                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.12">
+                        <div class="team-item text-center">
+                            <div class="team-img-wrap">
+                                <img src="img/team-2.jpg" alt="Chef Rajesh Kumar">
+                            </div>
+                            <h5 class="mb-1">Rajesh Kumar</h5>
+                            <span class="team-designation">Master Tandoor Artisan</span>
+                            <p class="team-specialty">Specialist in clay-oven baked tandoori naans, stuffed kulchas, and charred artisanal paneer tikkas.</p>
+                            <div class="team-social-links">
+                                <a class="btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                                <a class="btn-social" href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chef 3 -->
+                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.18">
+                        <div class="team-item text-center">
+                            <div class="team-img-wrap">
+                                <img src="img/team-3.jpg" alt="Chef Anand Verma">
+                            </div>
+                            <h5 class="mb-1">Anand Verma</h5>
+                            <span class="team-designation">Traditional Curry Master</span>
+                            <p class="team-specialty">Artisan of slow-simmered Dal Makhani, fragrant biryanis, and hand-pounded authentic spice blends.</p>
+                            <div class="team-social-links">
+                                <a class="btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                                <a class="btn-social" href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chef 4 -->
                     <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.24">
-                        <div class="team-item text-center rounded overflow-hidden">
-                            <div class="rounded-circle overflow-hidden m-4">
-                                <img class="img-fluid" src="img/team-3.jpg" alt="">
+                        <div class="team-item text-center">
+                            <div class="team-img-wrap">
+                                <img src="img/team-4.jpg" alt="Chef Priya Patel">
                             </div>
-                            <h5 class="mb-0">Full Name</h5>
-                            <small>Designation</small>
-                            <div class="d-flex justify-content-center mt-3">
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-instagram"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 om-reveal" data-om-delay="0.32">
-                        <div class="team-item text-center rounded overflow-hidden">
-                            <div class="rounded-circle overflow-hidden m-4">
-                                <img class="img-fluid" src="img/team-4.jpg" alt="">
-                            </div>
-                            <h5 class="mb-0">Full Name</h5>
-                            <small>Designation</small>
-                            <div class="d-flex justify-content-center mt-3">
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square btn-primary mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            <h5 class="mb-1">Priya Patel</h5>
+                            <span class="team-designation">Heritage Sweets Specialist</span>
+                            <p class="team-specialty">Crafting melt-in-mouth gulab jamuns, saffron rasmalai, and seasonal festive desserts with pure desi ghee.</p>
+                            <div class="team-social-links">
+                                <a class="btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                                <a class="btn-social" href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
                             </div>
                         </div>
                     </div>
@@ -223,58 +472,161 @@
         <!-- Testimonial Start -->
         <div class="container-xxl py-5 om-reveal" data-om-delay="0.08">
             <div class="container">
-                <div class="text-center">
-                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Testimonial</h5>
-                    <h1 class="mb-5">Our Clients Say!!!</h1>
+                <div class="text-center mb-4">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Google Reviews</h5>
+                    <h1 class="mb-3">What Our Guests Say</h1>
+                    <p class="text-muted mx-auto mb-4" style="max-width: 620px;">
+                        Authentic Google Local Guide reviews from Khurja diners and visiting food lovers praising our pure vegetarian flavors, hospitality, and value.
+                    </p>
+                    <!-- Google Rating Trust Badge -->
+                    <div class="d-inline-block">
+                        <a href="https://maps.google.com/?q=Om+Family+Restaurant+Khurja" target="_blank" rel="noopener" class="om-google-rating-card text-decoration-none d-inline-flex align-items-center p-2 pe-4 rounded-pill shadow-sm bg-white border">
+                            <div class="om-google-g-icon me-3">
+                                <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                            </div>
+                            <div class="text-start">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="fw-bold text-dark fs-5">4.8</span>
+                                    <div class="text-warning small ms-1">
+                                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-half-alt"></i>
+                                    </div>
+                                    <span class="badge ms-2 small" style="background-color: #ECFDF5 !important; color: #047857 !important;">Verified Rating</span>
+                                </div>
+                                <small class="text-muted">Based on <strong>500+ Local Reviews</strong> in Khurja · <span class="text-primary fw-semibold">View on Google Maps <i class="fa fa-external-link-alt small ms-1"></i></span></small>
+                            </div>
+                        </a>
+                    </div>
                 </div>
                 <div class="owl-carousel testimonial-carousel">
-                    <div class="testimonial-item bg-transparent border rounded p-4">
-                        <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
-                        <p>Awesome food, big portions. I'm from Gurgaon and was visiting Khurja. Absolute value for money. We were 4 people and ate till our stomachs were full and the bill was only Rs 720. Great experience. Must visit.</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-1.jpg" style="width: 50px; height: 50px;">
-                            <div class="ps-3">
-                                <h5 class="mb-1">Yamini Agrawal</h5>
-                                <small>Profession</small>
+                    <!-- Real Review 1: Karun Pandey -->
+                    <div class="om-testimonial-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="om-google-badge">
+                                <i class="fab fa-google text-danger me-1"></i>Google Review
+                            </span>
+                            <div class="text-warning small">
+                                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
                             </div>
                         </div>
+                        <span class="badge om-testimonial-tag mb-3 align-self-start">
+                            <i class="fa fa-utensils text-primary me-1"></i>Lunch · ₹720 for 4 · Absolute Value
+                        </span>
+                        <p class="om-testimonial-quote">
+                            "Awesome food, big portions. I'm from Gurgaon and was visiting Khurja. Absolute value for money. We were 4 people and ate till our stomachs were full and the bill was only Rs 720. Great experience. Must visit."
+                        </p>
+                        <div class="om-review-scores">
+                            <span><strong>Food:</strong> 5/5</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Service:</strong> 5/5</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Atmosphere:</strong> 5/5</span>
+                        </div>
+                        <div class="d-flex align-items-center pt-3 border-top mt-auto">
+                            <img class="img-fluid flex-shrink-0 rounded-circle border border-2 border-primary" src="img/review-karun.png" style="width: 50px; height: 50px; object-fit: cover;" alt="Karun Pandey Google Local Guide Review">
+                            <div class="ps-3 text-start">
+                                <h6 class="mb-0 fw-bold text-dark">Karun Pandey</h6>
+                                <small class="text-muted">Local Guide · 41 reviews · 79 photos</small>
+                            </div>
+                            <span class="om-verified-pill ms-auto"><i class="fas fa-check-circle"></i>Verified</span>
+                        </div>
                     </div>
-                    <div class="testimonial-item bg-transparent border rounded p-4">
-                        <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
-                        <p>Very tasty food and amazing price. We end up eating 4 people full stomach at 700 only
 
-                            Highly recommended</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-2.jpg" style="width: 50px; height: 50px;">
-                            <div class="ps-3">
-                                <h5 class="mb-1">Karun Pandey</h5>
-                                <small>Profession</small>
+                    <!-- Real Review 2: Architect Kamran Husain -->
+                    <div class="om-testimonial-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="om-google-badge">
+                                <i class="fab fa-google text-danger me-1"></i>Google Review
+                            </span>
+                            <div class="text-warning small">
+                                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
                             </div>
                         </div>
-                    </div>
-                    <div class="testimonial-item bg-transparent border rounded p-4">
-                        <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
-                        <p>Food was good , hygiene is all upon u what u want from them, they will do for u.
-                            Veg salad is chargeable and count ur roti n stuff if u can. These thing always doughtful in any rstro. Enjoy your food</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-3.jpg" style="width: 50px; height: 50px;">
-                            <div class="ps-3">
-                                <h5 class="mb-1">Rohit Raghav</h5>
-                                <small>Profession</small>
+                        <span class="badge om-testimonial-tag mb-3 align-self-start">
+                            <i class="fa fa-utensils text-warning me-1"></i>Specialty · Awesome Paneer Dosa
+                        </span>
+                        <p class="om-testimonial-quote">
+                            "The place is too good i.m an Architect i love to eat in peace espicially with family and freinds the place offers awsome paneer dosa try it...youll love it.."
+                        </p>
+                        <div class="om-review-scores">
+                            <span><strong>Specialty:</strong> Paneer Dosa</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Ambiance:</strong> Peaceful</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Rating:</strong> 5/5</span>
+                        </div>
+                        <div class="d-flex align-items-center pt-3 border-top mt-auto">
+                            <img class="img-fluid flex-shrink-0 rounded-circle border border-2 border-primary" src="img/review-kamran.png" style="width: 50px; height: 50px; object-fit: cover;" alt="Architect Kamran Husain Google Local Guide Review">
+                            <div class="ps-3 text-start">
+                                <h6 class="mb-0 fw-bold text-dark">Architect Kamran Husain</h6>
+                                <small class="text-muted">Local Guide · 38 reviews · 63 photos</small>
                             </div>
+                            <span class="om-verified-pill ms-auto"><i class="fas fa-check-circle"></i>Verified</span>
                         </div>
                     </div>
-                    <div class="testimonial-item bg-transparent border rounded p-4">
-                        <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
-                        <p>Pocket friendly with wide variety of food.
-                            Ambiance is good.
-                            Food quality is average but according to locality it is the best option u have.</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-4.jpg" style="width: 50px; height: 50px;">
-                            <div class="ps-3">
-                                <h5 class="mb-1">Palak</h5>
-                                <small>Profession</small>
+
+                    <!-- Real Review 3: Priya Gupta -->
+                    <div class="om-testimonial-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="om-google-badge">
+                                <i class="fab fa-google text-danger me-1"></i>Google Review
+                            </span>
+                            <div class="text-warning small">
+                                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
                             </div>
+                        </div>
+                        <span class="badge om-testimonial-tag mb-3 align-self-start">
+                            <i class="fa fa-users text-info me-1"></i>Family &amp; Solo Dining · Reasonable Prices
+                        </span>
+                        <p class="om-testimonial-quote">
+                            "Clean place..tasty food..attendants are polite and we'll behaved..price is very reasonable..you can enjoy variety of food with family group or alone"
+                        </p>
+                        <div class="om-review-scores">
+                            <span><strong>Quality:</strong> 5/5</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Hospitality:</strong> Polite</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Pricing:</strong> Reasonable</span>
+                        </div>
+                        <div class="d-flex align-items-center pt-3 border-top mt-auto">
+                            <img class="img-fluid flex-shrink-0 rounded-circle border border-2 border-primary" src="img/review-priya.png" style="width: 50px; height: 50px; object-fit: cover;" alt="Priya Gupta Google Local Guide Review">
+                            <div class="ps-3 text-start">
+                                <h6 class="mb-0 fw-bold text-dark">Priya Gupta</h6>
+                                <small class="text-muted">Local Guide · 139 reviews · 963 photos</small>
+                            </div>
+                            <span class="om-verified-pill ms-auto"><i class="fas fa-check-circle"></i>Verified</span>
+                        </div>
+                    </div>
+
+                    <!-- Real Review 4: Nitu Kumari -->
+                    <div class="om-testimonial-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="om-google-badge">
+                                <i class="fab fa-google text-danger me-1"></i>Google Review
+                            </span>
+                            <div class="text-warning small">
+                                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                            </div>
+                        </div>
+                        <span class="badge om-testimonial-tag mb-3 align-self-start">
+                            <i class="fa fa-glass-cheers text-success me-1"></i>Parties &amp; Get-Togethers · Top Notch
+                        </span>
+                        <p class="om-testimonial-quote">
+                            "Ok family restaurant is perfect for party and get together. They have multiple cuisine like north indian and chinese dishes. Dishes are flavourful and mouthwatering. Staffs are acknowledged and attentive. Service is impeccable and top notch. Great place for hangout and great value of money. Highly recommended to all."
+                        </p>
+                        <div class="om-review-scores">
+                            <span><strong>Food:</strong> 5/5</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Service:</strong> 5/5</span>
+                            <span class="text-muted">|</span>
+                            <span><strong>Atmosphere:</strong> 5/5</span>
+                        </div>
+                        <div class="d-flex align-items-center pt-3 border-top mt-auto">
+                            <img class="img-fluid flex-shrink-0 rounded-circle border border-2 border-primary" src="img/review-nitu.png" style="width: 50px; height: 50px; object-fit: cover;" alt="Nitu Kumari Google Local Guide Review">
+                            <div class="ps-3 text-start">
+                                <h6 class="mb-0 fw-bold text-dark">Nitu Kumari</h6>
+                                <small class="text-muted">Local Guide · 470 reviews</small>
+                            </div>
+                            <span class="om-verified-pill ms-auto"><i class="fas fa-check-circle"></i>Verified</span>
                         </div>
                     </div>
                 </div>
@@ -300,41 +652,47 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="name" placeholder="Your Name"
-                                            name="name">
+                                        <input type="text" class="form-control" id="name" placeholder="Your Name" name="name" required>
                                         <label for="name">Your Name</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="email" class="form-control" id="email" placeholder="Your Email"
-                                            name="email">
+                                        <input type="email" class="form-control" id="email" placeholder="Your Email" name="email" required>
                                         <label for="email">Your Email</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating date" id="date3" data-target-input="nearest">
-                                        <input type="datetime-local" class="form-control" id="datetime"
-                                            placeholder="Date & Time"  
-                                            name="date">
-                                        <label for="datetime">Date & Time</label>
+                                        <input type="datetime-local" class="form-control" id="datetime" placeholder="Date & Time" name="date" required>
+                                        <label for="datetime">Date &amp; Time</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="number" name="people" id="select1" class="form-select">
-                                        <label for="select1">No Of People</label>
+                                        <select class="form-select" id="select1" name="people" required>
+                                            <option value="1">1 Person</option>
+                                            <option value="2" selected>2 People</option>
+                                            <option value="4">4 People</option>
+                                            <option value="6">6 People</option>
+                                            <option value="8">8+ People (Grand Booth)</option>
+                                        </select>
+                                        <label for="select1">Party Size</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Special Request" id="message"
-                                            style="height: 100px" name="request"></textarea>
-                                        <label for="message">Special Request</label>
+                                        <textarea class="form-control" placeholder="Special Request" id="message" style="height: 100px" name="request"></textarea>
+                                        <label for="message">Special Request (Dietary, Seating)</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <button class="btn btn-primary w-100 py-3" type="submit" name="save">Book Now</button>
+                                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg" type="submit" name="save">
+                                        <i class="fa fa-calendar-check me-2"></i>Book Table Now
+                                    </button>
+                                    <p class="text-white-50 text-center small mt-3 mb-0">
+                                        Prefer to choose your exact table? <a href="booking.html" class="text-primary fw-semibold text-decoration-underline">Try our Interactive 2D Floor Plan &rarr;</a>
+                                    </p>
                                 </div>
                             </div>
                         </form>
@@ -347,20 +705,19 @@
             <div class="modal-dialog">
                 <div class="modal-content rounded-0">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Youtube Video</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Our Culinary Journey</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <!-- 16:9 aspect ratio -->
                         <div class="ratio ratio-16x9">
-                            <iframe class="embed-responsive-item" src="" id="video" allowfullscreen allowscriptaccess="always"
-                                allow="autoplay"></iframe>
+                            <iframe class="embed-responsive-item" src="" id="video" allowfullscreen allowscriptaccess="always" allow="autoplay"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-         <!-- Reservation End -->
+        <!-- Reservation End -->
 
         <!-- Footer Start -->
         <div class="container-fluid bg-dark text-light footer pt-5 mt-5 om-reveal" data-om-reveal="fade" data-om-delay="0.06">
@@ -368,11 +725,11 @@
                 <div class="row g-5">
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Company</h4>
-                        <a class="btn btn-link" href="">About Us</a>
-                        <a class="btn btn-link" href="">Contact Us</a>
-                        <a class="btn btn-link" href="">Reservation</a>
-                        <a class="btn btn-link" href="">Privacy Policy</a>
-                        <a class="btn btn-link" href="">Terms & Condition</a>
+                        <a class="btn btn-link" href="about.html">About Us</a>
+                        <a class="btn btn-link" href="contact.html">Contact Us</a>
+                        <a class="btn btn-link" href="booking.html">Reservation</a>
+                        <a class="btn btn-link" href="menu.html">Our Menu</a>
+                        <a class="btn btn-link" href="service.html">Our Services</a>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Contact</h4>
@@ -380,10 +737,10 @@
                         <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 9389734344</p>
                         <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@OmRestaurant.com</p>
                         <div class="d-flex pt-2">
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
-                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://youtube.com" target="_blank" rel="noopener"><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -396,12 +753,12 @@
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Newsletter</h4>
                         <p>Share Your Email to Subscribe.</p>
-                    <form action="/newsletter" method="post">
-                        <div class="position-relative mx-auto" style="max-width: 400px;">
-                            <input class="form-control border-primary w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email" name="email">
-                            <button type="submit" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
-                        </div>
-                    </form>
+                        <form action="/newsletter" method="post" data-om-vanish-form>
+                            <div class="position-relative mx-auto" style="max-width: 400px;">
+                                <input class="form-control border-primary w-100 py-3 ps-4" type="email" placeholder="Share your email..." name="email" data-om-vanish="true" required style="padding-right: 125px !important;">
+                                <button type="submit" class="btn btn-primary py-2 px-3 rounded-pill position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -409,17 +766,15 @@
                 <div class="copyright">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">OmRestaurant</a>, All Right Reserved. 
-							
-							<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-							Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/">Gopal Gupta</a>
+                            &copy; <a class="border-bottom" href="index.html">OmRestaurant</a>, All Right Reserved. 
+							Designed By <a class="border-bottom" href="https://portfolio-gopal.netlify.app/" target="_blank" rel="noopener">Gopal Gupta</a>
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
-                                <a href="">Home</a>
-                                <a href="">Cookies</a>
-                                <a href="">Help</a>
-                                <a href="">FQAs</a>
+                                <a href="index.html">Home</a>
+                                <a href="menu.html">Menu</a>
+                                <a href="booking.html">Booking</a>
+                                <a href="contact.html">Contact</a>
                             </div>
                         </div>
                     </div>
@@ -431,6 +786,81 @@
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+        <!-- Quick-View Dish Modal -->
+        <div class="modal fade" id="dishQuickViewModal" tabindex="-1" aria-labelledby="dishQuickViewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                    <div class="modal-header border-0 bg-dark text-white p-3 px-4">
+                        <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="dishQuickViewModalLabel">
+                            <i class="fa fa-utensils text-primary me-2"></i><span id="modalDishTitle">Dish Details</span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 p-md-5">
+                        <div class="row g-4 align-items-center">
+                            <div class="col-md-5 text-center">
+                                <div class="position-relative rounded-4 overflow-hidden shadow-sm" style="height: 250px;">
+                                    <img id="modalDishImg" class="w-100 h-100" src="img/dinner-1.jpg" alt="Dish image" style="object-fit: cover;">
+                                    <span class="om-veg-badge" title="100% Pure Vegetarian"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge px-3 py-1 rounded-pill small" style="background-color: #ECFDF5 !important; color: #047857 !important;">
+                                        <i class="fa fa-leaf me-1"></i>100% Pure Veg
+                                    </span>
+                                    <h3 class="text-primary fw-bold mb-0" id="modalDishPrice">&#8377;280</h3>
+                                </div>
+                                <p class="text-muted mb-3" id="modalDishDesc" style="line-height: 1.6;">
+                                    Dish description will appear here.
+                                </p>
+                                <div class="row g-2 mb-4 small">
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-light border">
+                                            <span class="text-muted d-block">Spice Level</span>
+                                            <strong class="text-dark" id="modalDishSpice">Medium</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-light border">
+                                            <span class="text-muted d-block">Prep Time</span>
+                                            <strong class="text-dark" id="modalDishTime">15 mins</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="p-2 rounded bg-light border">
+                                            <span class="text-muted d-block">Key Ingredients</span>
+                                            <span class="text-dark fw-medium" id="modalDishIngredients">Fresh Ingredients</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="booking.html" class="btn btn-primary rounded-pill px-4 py-2 fw-bold flex-fill shadow-sm">
+                                        <i class="fa fa-calendar-check me-2"></i>Book Table to Taste
+                                    </a>
+                                    <a href="menu.html" class="btn btn-outline-dark rounded-pill px-3 py-2 fw-semibold">
+                                        <i class="fa fa-book-open me-2"></i>View Full Menu
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Sticky Quick Action Bar (Visible on mobile only) -->
+        <div class="om-mobile-bottom-bar d-md-none">
+            <div class="container-fluid px-2 py-1 d-flex gap-2 align-items-center justify-content-between">
+                <a href="booking.html" class="btn btn-primary flex-fill py-2 px-2 rounded-pill fw-bold small shadow">
+                    <i class="fa fa-calendar-check me-1"></i>Book A Table
+                </a>
+                <a href="menu.html" class="btn btn-outline-light flex-fill py-2 px-2 rounded-pill fw-semibold small shadow">
+                    <i class="fa fa-utensils me-1"></i>Explore Menu
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript Libraries -->
@@ -454,7 +884,28 @@
     <script src="lib/emailjs/email.min.js"></script>
     <script src="js/email-config.js"></script>
     <script src="js/email-service.js"></script>
+    <script src="js/vanish-input.js"></script>
     <script src="js/main.js"></script>
+
+    <!-- Dish Quick-View Modal Population Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var quickViewModal = document.getElementById('dishQuickViewModal');
+            if (quickViewModal) {
+                quickViewModal.addEventListener('show.bs.modal', function (event) {
+                    var btn = event.relatedTarget;
+                    if (!btn) return;
+                    document.getElementById('modalDishTitle').textContent = btn.getAttribute('data-dish-name') || 'Dish Details';
+                    document.getElementById('modalDishPrice').innerHTML = '&#8377;' + (btn.getAttribute('data-dish-price') || '');
+                    document.getElementById('modalDishDesc').textContent = btn.getAttribute('data-dish-desc') || '';
+                    document.getElementById('modalDishImg').src = btn.getAttribute('data-dish-img') || 'img/dinner-1.jpg';
+                    document.getElementById('modalDishSpice').textContent = btn.getAttribute('data-dish-spice') || 'Balanced';
+                    document.getElementById('modalDishTime').textContent = btn.getAttribute('data-dish-time') || '15 mins';
+                    document.getElementById('modalDishIngredients').textContent = btn.getAttribute('data-dish-ingredients') || 'Pure Vegetarian Ingredients';
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
