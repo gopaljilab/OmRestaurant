@@ -148,7 +148,9 @@
 
     function checkBookingPagePrefill() {
         const messageField = document.getElementById('message');
-        if (!messageField) return;
+        if (messageField && messageField.value.includes('Pre-ordered Dishes:')) {
+            messageField.value = messageField.value.replace(/Pre-ordered Dishes:[^\n]*\n?/g, '').trim();
+        }
 
         const params = new URLSearchParams(window.location.search);
         let preorder = params.get('preorder');
@@ -165,13 +167,6 @@
         }
 
         if (preorder) {
-            const prefillMsg = `Pre-ordered Dishes: ${preorder}${total ? ` (Est. Total: ₹${total})` : ''}`;
-            if (!messageField.value.includes('Pre-ordered Dishes:')) {
-                messageField.value = messageField.value 
-                    ? `${prefillMsg}\n${messageField.value}` 
-                    : prefillMsg;
-            }
-
             const form = document.querySelector('form[action="/bookings"]');
             if (form && !document.getElementById('omPreorderNotice')) {
                 const notice = document.createElement('div');
