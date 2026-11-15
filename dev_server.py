@@ -22,12 +22,12 @@ SUPABASE_DB = "postgres"
 
 SEED_TABLES = [
     (1, "1", 2, "Window", "available"),
-    (2, "2", 2, "Window", "reserved"),
+    (2, "2", 2, "Window", "available"),
     (3, "3", 2, "Window", "available"),
     (4, "4", 2, "Window", "available"),
     (5, "5", 4, "Main", "available"),
     (6, "6", 4, "Main", "available"),
-    (7, "7", 4, "Main", "reserved"),
+    (7, "7", 4, "Main", "available"),
     (8, "8", 6, "Main", "available"),
     (9, "9", 6, "Main", "available"),
     (10, "10", 2, "Patio", "available"),

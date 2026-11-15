@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS menu_item_status (
 
 INSERT INTO tables (id, table_number, capacity, zone, status) VALUES
     (1, '1', 2, 'Window', 'available'),
-    (2, '2', 2, 'Window', 'reserved'),
+    (2, '2', 2, 'Window', 'available'),
     (3, '3', 2, 'Window', 'available'),
     (4, '4', 2, 'Window', 'available'),
     (5, '5', 4, 'Main', 'available');

@@ -99,10 +99,17 @@ public class SupabaseMigrationRunner {
                 assertTrue(createdSet.contains(target), "Table '" + target + "' must exist in Supabase after migration");
             }
 
-            // Verify dining room physical tables seeded
+            // Ensure all 14 physical tables are marked 'available'
+            jdbc.update("UPDATE public.tables SET status = 'available'");
+
+            // Verify dining room physical tables seeded and available
             Integer tableCount = jdbc.queryForObject("SELECT COUNT(*) FROM public.tables", Integer.class);
             System.out.println("\nSeeded Dining Tables Count: " + tableCount);
             assertEquals(14, tableCount, "14 dining tables must be seeded across 4 zones");
+
+            Integer availableCount = jdbc.queryForObject("SELECT COUNT(*) FROM public.tables WHERE status = 'available'", Integer.class);
+            System.out.println("Available Dining Tables Count: " + availableCount + " / 14");
+            assertEquals(14, availableCount, "All 14 tables must have status = 'available'");
 
             // Verify sequence
             String seqVal = jdbc.queryForObject("SELECT last_value FROM public.order_number_seq", String.class);

@@ -54,14 +54,14 @@
         tables: [
             // Window-Side Seating (2-seaters)
             { id: 1, table_number: "1", capacity: 2, zone: "Window", shape: "rect", cx: 118, cy: 112, w: 50, h: 38, status: "available" },
-            { id: 2, table_number: "2", capacity: 2, zone: "Window", shape: "rect", cx: 118, cy: 222, w: 50, h: 38, status: "reserved" },
+            { id: 2, table_number: "2", capacity: 2, zone: "Window", shape: "rect", cx: 118, cy: 222, w: 50, h: 38, status: "available" },
             { id: 3, table_number: "3", capacity: 2, zone: "Window", shape: "rect", cx: 118, cy: 332, w: 50, h: 38, status: "available" },
             { id: 4, table_number: "4", capacity: 2, zone: "Window", shape: "rect", cx: 118, cy: 442, w: 50, h: 38, status: "available" },
 
             // Main Dining Room (4-seaters & 6-seaters)
             { id: 5, table_number: "5", capacity: 4, zone: "Main", shape: "rect", cx: 312, cy: 146, w: 58, h: 52, status: "available" },
             { id: 6, table_number: "6", capacity: 4, zone: "Main", shape: "rect", cx: 447, cy: 146, w: 58, h: 52, status: "available" },
-            { id: 7, table_number: "7", capacity: 4, zone: "Main", shape: "rect", cx: 582, cy: 146, w: 58, h: 52, status: "reserved" },
+            { id: 7, table_number: "7", capacity: 4, zone: "Main", shape: "rect", cx: 582, cy: 146, w: 58, h: 52, status: "available" },
             { id: 8, table_number: "8", capacity: 6, zone: "Main", shape: "rect", cx: 356, cy: 282, w: 106, h: 50, status: "available" },
             { id: 9, table_number: "9", capacity: 6, zone: "Main", shape: "rect", cx: 540, cy: 282, w: 106, h: 50, status: "available" },
 
