@@ -215,11 +215,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Sanitize Docker image repository name
+        id: image_name
+        run: |
+          CLEAN_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+$//')
+          echo "image=ghcr.io/${CLEAN_REPO}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_NAME=ghcr.io/${CLEAN_REPO}" >> "$GITHUB_ENV"
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ steps.image_name.outputs.image }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
