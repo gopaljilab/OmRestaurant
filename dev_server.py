@@ -14,11 +14,11 @@ DB_FILE = "omrestaurant.sqlite3"
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 SLOT_HALF_WINDOW = timedelta(minutes=90)
 
-SUPABASE_HOST = "aws-0-eu-west-1.pooler.supabase.com"
-SUPABASE_PORT = "5432"
-SUPABASE_USER = "postgres.ujiftprtpulyhudloyvp"
-SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "wajdu4-gadsaj-qofWep")
-SUPABASE_DB = "postgres"
+SUPABASE_HOST = os.environ.get("DB_HOST", "aws-0-ap-south-1.pooler.supabase.com")
+SUPABASE_PORT = os.environ.get("DB_PORT", "5432")
+SUPABASE_USER = os.environ.get("DB_USERNAME", "postgres.dpckliukvkdwerjqbxhu")
+SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "")
+SUPABASE_DB = os.environ.get("DB_NAME", "postgres")
 
 SEED_TABLES = [
     (1, "1", 2, "Window", "available"),
@@ -39,6 +39,8 @@ SEED_TABLES = [
 
 
 def save_to_supabase(query):
+    if not SUPABASE_PASSWORD:
+        return False
     try:
         psql_path = "/opt/homebrew/opt/libpq/bin/psql"
         if not os.path.exists(psql_path):
@@ -154,6 +156,11 @@ def compute_reserved_table_ids(cursor, target_slot):
     return reserved_ids
 
 
+class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+
 class DevServerHandler(http.server.SimpleHTTPRequestHandler):
     def send_json(self, status_code, payload):
         body = json.dumps(payload).encode("utf-8")
@@ -170,6 +177,11 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path.rstrip("/") in ["/operations", "/kds", "/operations.html"]:
+            self.send_response(302)
+            self.send_header("Location", "http://localhost:5174/")
+            self.end_headers()
+            return
         if parsed.path.rstrip("/") == "/api/tables/availability":
             qs = urllib.parse.parse_qs(parsed.query)
             date_str = qs.get("date", [""])[0].strip()
@@ -385,8 +397,7 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
 
 def run():
     init_db()
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), DevServerHandler) as httpd:
+    with ThreadingTCPServer(("", PORT), DevServerHandler) as httpd:
         print(f"OmRestaurant dev server running at http://localhost:{PORT}/")
         httpd.serve_forever()
 
