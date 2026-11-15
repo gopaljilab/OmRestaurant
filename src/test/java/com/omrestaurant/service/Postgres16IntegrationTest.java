@@ -49,11 +49,52 @@ public class Postgres16IntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5433/om_test");
-        registry.add("spring.datasource.username", () -> "postgres");
-        registry.add("spring.datasource.password", () -> "testpass");
+        boolean isCi = "true".equalsIgnoreCase(System.getenv("CI")) || "true".equalsIgnoreCase(System.getenv("GITHUB_ACTIONS"));
+
+        String host = firstNonBlank(
+                System.getenv("POSTGRES_HOST"),
+                System.getenv("DB_HOST"),
+                "localhost"
+        );
+        String port = firstNonBlank(
+                System.getenv("POSTGRES_PORT"),
+                System.getenv("DB_PORT"),
+                isCi ? "5432" : "5433"
+        );
+        String db = firstNonBlank(
+                System.getenv("POSTGRES_DB"),
+                System.getenv("DB_NAME"),
+                isCi ? "omrestaurant" : "om_test"
+        );
+        String user = firstNonBlank(
+                System.getenv("POSTGRES_USER"),
+                System.getenv("DB_USERNAME"),
+                "postgres"
+        );
+        String pass = firstNonBlank(
+                System.getenv("POSTGRES_PASSWORD"),
+                System.getenv("DB_PASSWORD"),
+                isCi ? "postgres" : "testpass"
+        );
+
+        String explicitUrl = firstNonBlank(System.getenv("POSTGRES_URL"), System.getenv("DB_URL"), null);
+        String targetUrl = (explicitUrl != null) ? explicitUrl : ("jdbc:postgresql://" + host + ":" + port + "/" + db);
+
+        registry.add("spring.datasource.url", () -> targetUrl);
+        registry.add("spring.datasource.username", () -> user);
+        registry.add("spring.datasource.password", () -> pass);
         registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
         registry.add("spring.sql.init.mode", () -> "always");
+        registry.add("spring.sql.init.schema-locations", () -> "classpath:schema.sql");
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) {
+                return v.trim();
+            }
+        }
+        return null;
     }
 
     @Autowired

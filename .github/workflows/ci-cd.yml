@@ -82,6 +82,13 @@ jobs:
           cache: maven
 
       - name: Build production JAR with Maven
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: omrestaurant
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_URL: jdbc:postgresql://localhost:5432/omrestaurant
         run: mvn -B clean package
 
       - name: Integration smoke test (Spring Boot + PostgreSQL 16)
