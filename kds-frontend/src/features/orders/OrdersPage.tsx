@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Clock,
@@ -11,12 +11,15 @@ import {
   X,
   ChefHat,
   Check,
+  ArrowRight,
+  Filter,
+  Keyboard,
 } from 'lucide-react';
-import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
 import { ordersApi } from '../../services/orders';
 import { usePolling } from '../../hooks/usePolling';
+import { kdsAudio } from '../../services/sound';
 import type {
   Order,
   OrderStatus,
@@ -28,10 +31,20 @@ export const OrdersPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStation, setSelectedStation] = useState<string>('all');
+  const [selectedOrderType, setSelectedOrderType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [selectedKOT, setSelectedKOT] = useState<KitchenOrderTicket | null>(null);
+  const [currentTimeMs, setCurrentTimeMs] = useState<number>(Date.now());
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState<boolean>(false);
+
+  // Live timer tick every 1000ms for accurate elapsed time display
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTimeMs(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchOrders = useCallback(async (manual = false) => {
     if (manual) setIsRefreshing(true);
@@ -48,13 +61,12 @@ export const OrdersPage: React.FC = () => {
     }
   }, [selectedStatus]);
 
-  usePolling(() => fetchOrders(false), 5000);
+  usePolling(() => fetchOrders(false), 4000);
 
   useEffect(() => {
     fetchOrders(false);
   }, [fetchOrders]);
 
-  // Open KOT modal if order ID is specified in query params
   useEffect(() => {
     const selectedId = searchParams.get('selected');
     if (selectedId) {
@@ -64,6 +76,7 @@ export const OrdersPage: React.FC = () => {
 
   const handleStatusChange = async (orderId: number, newStatus: OrderStatus) => {
     try {
+      kdsAudio.playBumpFeedback();
       await ordersApi.updateOrderStatus(orderId, newStatus);
       await fetchOrders(false);
     } catch (err) {
@@ -84,6 +97,7 @@ export const OrdersPage: React.FC = () => {
         : 'cooking';
 
     try {
+      kdsAudio.playBumpFeedback();
       await ordersApi.updateOrderItemStatus(orderId, itemId, nextStatus);
       await fetchOrders(false);
     } catch (err) {
@@ -100,213 +114,459 @@ export const OrdersPage: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.table_number && order.table_number.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesSearch;
-  });
+  // Keyboard shortcut: Space or 'b' to bump the oldest active ticket
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
 
-  const statusTabs = [
-    { id: 'all', label: 'All Orders' },
-    { id: 'incoming', label: 'Incoming' },
-    { id: 'preparing', label: 'Preparing' },
-    { id: 'ready', label: 'Ready' },
-    { id: 'served', label: 'Served' },
-    { id: 'completed', label: 'Completed' },
-  ];
+      if (e.code === 'Space' || e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        // Find oldest active ticket that can be bumped
+        const actionable = orders.find(
+          (o) => o.status === 'incoming' || o.status === 'preparing' || o.status === 'ready'
+        );
+        if (actionable) {
+          if (actionable.status === 'incoming') {
+            handleStatusChange(actionable.id, 'preparing');
+          } else if (actionable.status === 'preparing') {
+            // Check if all items are done
+            const allDone = actionable.items?.every((i) => i.item_status === 'done');
+            if (allDone) {
+              handleStatusChange(actionable.id, 'ready');
+            } else {
+              // Mark all items done and advance
+              actionable.items?.forEach((i) => {
+                if (i.item_status !== 'done') {
+                  ordersApi.updateOrderItemStatus(actionable.id, i.id, 'done');
+                }
+              });
+              handleStatusChange(actionable.id, 'ready');
+            }
+          } else if (actionable.status === 'ready') {
+            handleStatusChange(actionable.id, 'served');
+          }
+        }
+      } else if (e.key === '?') {
+        setShowKeyboardHelp((prev) => !prev);
+      }
+    };
 
-  const formatElapsed = (createdAt: string) => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [orders]);
+
+  // Filter orders by status, station, order type, and search term
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      // Station filter
+      if (selectedStation !== 'all') {
+        const hasStation = order.items?.some(
+          (i) => (i.station || '').toLowerCase() === selectedStation.toLowerCase()
+        );
+        if (!hasStation) return false;
+      }
+
+      // Order type filter
+      if (selectedOrderType !== 'all') {
+        if (order.order_type !== selectedOrderType) return false;
+      }
+
+      // Search term
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        const matches =
+          order.order_number.toLowerCase().includes(q) ||
+          order.customer_name.toLowerCase().includes(q) ||
+          (order.table_number && order.table_number.toLowerCase().includes(q)) ||
+          order.items?.some((i) => i.dish_name.toLowerCase().includes(q));
+        if (!matches) return false;
+      }
+
+      return true;
+    });
+  }, [orders, selectedStation, selectedOrderType, searchTerm]);
+
+  // Compute live elapsed time with seconds and delay flag
+  const computeElapsedDetails = (createdAt: string) => {
     try {
       const created = new Date(createdAt).getTime();
-      const now = Date.now();
-      const diffMinutes = Math.max(0, Math.floor((now - created) / 60000));
-      if (diffMinutes === 0) return { label: 'Just now', isUrgent: false };
-      if (diffMinutes === 1) return { label: '1m ago', isUrgent: false };
-      if (diffMinutes < 60) return { label: `${diffMinutes}m ago`, isUrgent: diffMinutes >= 15 };
+      const diffMs = Math.max(0, currentTimeMs - created);
+      const totalSecs = Math.floor(diffMs / 1000);
+      const mins = Math.floor(totalSecs / 60);
+      const secs = totalSecs % 60;
+
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const isDelayed = mins >= 15;
+
       return {
-        label: `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m`,
-        isUrgent: true,
+        formatted,
+        minutes: mins,
+        isDelayed,
       };
     } catch {
-      return { label: '—', isUrgent: false };
+      return { formatted: '00:00', minutes: 0, isDelayed: false };
     }
   };
 
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            Kitchen Orders Board
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Full ticket lifecycle, touchscreen item cooking advancement, and physical KOT thermal printing.
-          </p>
-        </div>
+  const statusTabs = [
+    { id: 'all', label: 'All Orders', count: orders.length },
+    {
+      id: 'incoming',
+      label: 'Incoming',
+      count: orders.filter((o) => o.status === 'incoming').length,
+      color: 'text-sky-400',
+    },
+    {
+      id: 'preparing',
+      label: 'Cooking',
+      count: orders.filter((o) => o.status === 'preparing').length,
+      color: 'text-amber-400',
+    },
+    {
+      id: 'ready',
+      label: 'Ready',
+      count: orders.filter((o) => o.status === 'ready').length,
+      color: 'text-emerald-400',
+    },
+    {
+      id: 'served',
+      label: 'Served',
+      count: orders.filter((o) => o.status === 'served').length,
+      color: 'text-indigo-400',
+    },
+    {
+      id: 'completed',
+      label: 'Completed',
+      count: orders.filter((o) => o.status === 'completed').length,
+      color: 'text-slate-400',
+    },
+  ];
 
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search #order, customer, table..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 py-2 text-xs rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-64 shadow-sm"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
+  const stationFilterPills = [
+    { id: 'all', label: 'All Stations' },
+    { id: 'tandoor', label: 'Tandoor' },
+    { id: 'curry', label: 'Curry' },
+    { id: 'south_indian', label: 'South Indian' },
+    { id: 'chinese', label: 'Chinese' },
+    { id: 'beverage', label: 'Beverage' },
+  ];
+
+  const orderTypeFilterPills = [
+    { id: 'all', label: 'All Types' },
+    { id: 'dine_in', label: 'Dine-In' },
+    { id: 'takeaway', label: 'Takeaway' },
+    { id: 'pre_order', label: 'Pre-Order' },
+  ];
+
+  return (
+    <div className="space-y-4 max-w-7xl mx-auto pb-12">
+      {/* Sticky Persistent Top Action & Filter Bar */}
+      <div className="sticky top-0 z-20 -mx-3 sm:-mx-5 lg:-mx-6 -mt-3 sm:-mt-5 lg:-mt-6 px-3 sm:px-5 lg:px-6 py-3 bg-[#080c14]/95 backdrop-blur-md border-b border-slate-800 space-y-3">
+        {/* Top row: Title, Search, Shortcuts Hint & Manual Refresh */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+              <span>Kitchen Orders Board</span>
+              <span className="rounded-full bg-slate-800 border border-slate-700 px-2.5 py-0.5 text-xs font-mono font-bold text-amber-400">
+                {filteredOrders.length}
+              </span>
+            </h2>
+
+            <button
+              onClick={() => setShowKeyboardHelp((prev) => !prev)}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="View KDS keyboard shortcuts"
+            >
+              <Keyboard className="h-3.5 w-3.5 text-amber-400" />
+              <span>SPACE / B to Bump</span>
+            </button>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchOrders(true)}
-            isLoading={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live Search */}
+            <div className="relative flex-1 sm:w-64">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search ticket #, table, dish..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-inner font-mono"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-0.5 cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchOrders(true)}
+              isLoading={isRefreshing}
+              className="h-9 px-3 rounded-xl border-slate-800 bg-slate-900 hover:bg-slate-800 text-xs font-bold"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Second row: Status Filter Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {statusTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedStatus(tab.id)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                selectedStatus === tab.id
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-950/40'
+                  : 'bg-slate-900/90 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800/80'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`font-mono text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  selectedStatus === tab.id
+                    ? 'bg-slate-950 text-amber-400'
+                    : 'bg-slate-800 text-slate-300'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Third row: Secondary Quick Filters (Station & Order Type) */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/60 text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1 mr-1">
+              <Filter className="h-3 w-3" />
+              Station:
+            </span>
+            {stationFilterPills.map((st) => (
+              <button
+                key={st.id}
+                onClick={() => setSelectedStation(st.id)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  selectedStation === st.id
+                    ? 'bg-slate-800 text-amber-300 border border-amber-500/50'
+                    : 'text-slate-400 hover:text-white bg-slate-900/60 border border-slate-800/60'
+                }`}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] uppercase font-bold text-slate-500 mr-1">Type:</span>
+            {orderTypeFilterPills.map((tp) => (
+              <button
+                key={tp.id}
+                onClick={() => setSelectedOrderType(tp.id)}
+                className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  selectedOrderType === tp.id
+                    ? 'bg-slate-800 text-amber-300 border border-amber-500/50'
+                    : 'text-slate-400 hover:text-white bg-slate-900/60 border border-slate-800/60'
+                }`}
+              >
+                {tp.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Status Filter Tabs */}
-      <div className="flex items-center gap-1.5 border-b border-slate-800 pb-3 overflow-x-auto">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setSelectedStatus(tab.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-              selectedStatus === tab.id
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-950/40 font-bold'
-                : 'bg-slate-900/60 text-slate-400 hover:text-white hover:bg-slate-800/80 border border-slate-800/60'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Keyboard Shortcuts Cheat Sheet Modal */}
+      {showKeyboardHelp && (
+        <div className="rounded-2xl border border-amber-500/40 bg-slate-900/95 p-4 text-xs text-slate-200 shadow-xl space-y-2">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <strong className="text-amber-400 font-bold flex items-center gap-2">
+              <Keyboard className="h-4 w-4" />
+              Kitchen Keyboard Shortcuts
+            </strong>
+            <button
+              onClick={() => setShowKeyboardHelp(false)}
+              className="text-slate-400 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-[11px] pt-1">
+            <div>
+              <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">
+                SPACE
+              </span>{' '}
+              / <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">B</span>: Quick Bump
+            </div>
+            <div>
+              <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">
+                1 - 6
+              </span>: Switch Views
+            </div>
+            <div>
+              <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">
+                M
+              </span>: Mute/Unmute Chime
+            </div>
+            <div>
+              <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">
+                [ or ]
+              </span>: Toggle Rail
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Orders Grid */}
       {isLoading ? (
-        <div className="rounded-xl border border-slate-800 bg-[#131b2e] p-12 text-center">
-          <RefreshCw className="h-6 w-6 animate-spin text-amber-400 mx-auto mb-3" />
-          <p className="text-sm text-slate-300">Loading orders...</p>
+        <div className="rounded-2xl border border-slate-800 bg-[#0f172a] p-16 text-center shadow-xl">
+          <RefreshCw className="h-8 w-8 animate-spin text-amber-400 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-300">Syncing with kitchen queue...</p>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-800 bg-[#0f172a]/60 p-16 text-center">
-          <FileText className="h-10 w-10 text-slate-500 mx-auto mb-3" />
-          <h4 className="text-base font-bold text-white">No Orders Found</h4>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            No orders match the current filter criteria ({selectedStatus}). Switch status tabs or create a new order.
+        <div className="rounded-2xl border border-dashed border-slate-800 bg-[#0c1220] p-16 text-center space-y-3">
+          <FileText className="h-12 w-12 text-slate-600 mx-auto" />
+          <h4 className="text-lg font-bold text-white">No Tickets in this Queue</h4>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            No orders match the selected filters ({selectedStatus} / {selectedStation} / {selectedOrderType}).
           </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSelectedStatus('all');
+              setSelectedStation('all');
+              setSelectedOrderType('all');
+              setSearchTerm('');
+            }}
+          >
+            Reset Filters
+          </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5">
           {filteredOrders.map((order) => {
             const totalItemsCount = order.items?.reduce((acc, i) => acc + (i.quantity || 1), 0) || 0;
             const doneItemsCount = order.items?.filter((i) => i.item_status === 'done').length || 0;
             const totalItemsKinds = order.items?.length || 0;
             const allItemsDone = totalItemsKinds > 0 && doneItemsCount === totalItemsKinds;
-            const elapsed = formatElapsed(order.created_at);
+            const elapsed = computeElapsedDetails(order.created_at);
 
-            // Card border styling based on status
-            const statusCardBorder =
-              order.status === 'incoming'
-                ? 'border-sky-500/70 shadow-sky-950/30'
-                : order.status === 'preparing'
-                ? 'border-amber-500/70 shadow-amber-950/30'
-                : order.status === 'ready'
-                ? 'border-emerald-500/70 shadow-emerald-950/30'
-                : 'border-slate-800';
+            // Container visual styling: Solid high-contrast operational colors
+            let cardBg = 'bg-[#0e1626] border-slate-800';
+            let topAccent = 'border-t-4 border-t-slate-700';
+
+            if (elapsed.isDelayed && order.status !== 'completed' && order.status !== 'cancelled') {
+              cardBg = 'bg-[#260a0f] border-rose-500 shadow-[0_8px_30px_rgba(244,63,94,0.22)]';
+              topAccent = 'border-t-4 border-t-rose-500';
+            } else if (order.status === 'incoming') {
+              cardBg = 'bg-[#0b1a2f] border-sky-500/70 shadow-[0_8px_30px_rgba(56,189,248,0.12)]';
+              topAccent = 'border-t-4 border-t-sky-400';
+            } else if (order.status === 'preparing') {
+              cardBg = 'bg-[#1e1305] border-amber-500/70 shadow-[0_8px_30px_rgba(245,158,11,0.12)]';
+              topAccent = 'border-t-4 border-t-amber-400';
+            } else if (order.status === 'ready') {
+              cardBg = 'bg-[#071f14] border-emerald-500/70 shadow-[0_8px_30px_rgba(16,185,129,0.14)]';
+              topAccent = 'border-t-4 border-t-emerald-400';
+            }
 
             return (
-              <Card
+              <div
                 key={order.id}
-                className={`flex flex-col justify-between border-2 bg-[#111726] transition-all shadow-xl hover:border-slate-600 ${statusCardBorder}`}
+                className={`relative flex flex-col justify-between rounded-2xl border p-4 sm:p-5 transition-all duration-150 ${cardBg} ${topAccent}`}
               >
                 <div>
-                  {/* Card Header: Order #, Status, Timer */}
+                  {/* Top Header: Order #, Type Badge, and Live Monospace Timer */}
                   <div className="flex items-start justify-between border-b border-slate-800/80 pb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xl font-black text-amber-400 tracking-wide whitespace-nowrap">
+                        <span className="font-mono text-2xl font-black text-amber-300 tracking-wider">
                           {order.order_number}
                         </span>
                         <Badge variant={order.order_type} size="sm">
                           {order.order_type.replace('_', ' ').toUpperCase()}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-200 font-semibold mt-1">
+
+                      <p className="text-xs text-slate-300 font-bold mt-1">
                         {order.customer_name}
                         {order.customer_phone ? ` • ${order.customer_phone}` : ''}
                       </p>
                     </div>
 
+                    {/* Timer & Pulsing Delay Badge */}
                     <div className="text-right space-y-1">
-                      <Badge variant={order.status} size="sm" dot>
-                        {order.status.toUpperCase()}
-                      </Badge>
                       <div
-                        className={`inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2 py-0.5 rounded border ${
-                          elapsed.isUrgent
-                            ? 'bg-rose-950 border-rose-700 text-rose-300 animate-pulse'
-                            : 'bg-slate-900 border-slate-800 text-slate-400'
+                        className={`inline-flex items-center gap-1.5 font-mono font-black text-xs px-2.5 py-1 rounded-xl border ${
+                          elapsed.isDelayed
+                            ? 'bg-rose-950 border-rose-500 text-rose-300 animate-pulse'
+                            : order.status === 'preparing'
+                            ? 'bg-amber-950/80 border-amber-600/60 text-amber-300'
+                            : 'bg-slate-900 border-slate-800 text-slate-300'
                         }`}
                       >
-                        <Clock className="h-3 w-3" />
-                        <span>{elapsed.label}</span>
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>{elapsed.formatted}</span>
                       </div>
+
+                      {elapsed.isDelayed && order.status !== 'completed' && (
+                        <div className="flex items-center justify-end">
+                          <span className="rounded bg-rose-500 text-slate-950 px-1.5 py-0.5 text-[9px] font-mono font-black uppercase tracking-wider animate-bounce">
+                            DELAYED &gt;15M
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Table & Guests Bar */}
-                  <div className="flex items-center justify-between text-xs py-2.5 px-1 border-b border-slate-800/60 text-slate-300">
+                  {/* Table & Guest Counts */}
+                  <div className="flex items-center justify-between text-xs py-2 px-1 border-b border-slate-800/60 text-slate-300">
                     <div>
                       {order.table_number ? (
-                        <span className="font-bold text-white">
-                          Table {order.table_number}{' '}
+                        <span className="font-extrabold text-white text-sm">
+                          TABLE {order.table_number}{' '}
                           {order.zone && (
-                            <span className="text-slate-400 font-normal">({order.zone})</span>
+                            <span className="text-xs text-slate-400 font-normal">({order.zone})</span>
                           )}
                         </span>
                       ) : (
-                        <span className="text-slate-400">Counter / Takeaway</span>
+                        <span className="font-bold text-amber-400 text-xs uppercase">Takeaway / Counter</span>
                       )}
                     </div>
-                    <div className="font-mono text-slate-400">
-                      Guests: <strong className="text-slate-200">{order.guest_count}</strong>
+                    <div className="font-mono text-xs text-slate-400">
+                      Covers: <strong className="text-white font-bold">{order.guest_count}</strong>
                     </div>
                   </div>
 
-                  {/* Special Chef Instructions Note (if present) */}
+                  {/* Special Chef Instructions / Allergies - High Contrast Warning Box */}
                   {order.special_notes && (
-                    <div className="my-3 rounded-xl bg-amber-950/40 border border-amber-600/50 p-2.5 text-xs text-amber-200 flex items-start gap-2 shadow-sm">
+                    <div className="my-2.5 rounded-xl bg-amber-500/15 border border-amber-500/50 p-2.5 text-xs text-amber-200 flex items-start gap-2 shadow-inner">
                       <AlertCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-bold text-[10px] uppercase tracking-wider text-amber-400 block">
-                          CHEF NOTE / DIETARY
-                        </span>
-                        <p className="italic font-medium">{order.special_notes}</p>
+                        <strong className="text-[10px] uppercase tracking-wider text-amber-400 block font-mono font-black">
+                          SPECIAL INSTRUCTION / ALLERGY:
+                        </strong>
+                        <p className="font-bold italic mt-0.5">{order.special_notes}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Order Line Items */}
-                  <div className="py-3 space-y-2">
+                  {/* Line Items List */}
+                  <div className="py-2.5 space-y-2">
                     <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                      <span>Line Items ({totalItemsCount} total)</span>
+                      <span>Items ({totalItemsCount} total)</span>
                       {order.status === 'preparing' && (
-                        <span className="font-mono text-amber-400">
+                        <span className="font-mono text-amber-400 font-bold">
                           {doneItemsCount}/{totalItemsKinds} Cooked
                         </span>
                       )}
@@ -320,49 +580,55 @@ export const OrdersPage: React.FC = () => {
                         return (
                           <div
                             key={item.id}
-                            className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all ${
+                            className={`flex items-center justify-between rounded-xl border p-2.5 transition-all ${
                               isDone
-                                ? 'bg-emerald-950/20 border-emerald-800/50 opacity-80'
+                                ? 'bg-emerald-950/25 border-emerald-600/40 opacity-80'
                                 : isCooking
-                                ? 'bg-amber-950/30 border-amber-600/60 shadow-sm'
-                                : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                                ? 'bg-amber-950/40 border-amber-500/60 shadow-sm ring-1 ring-amber-500/30'
+                                : 'bg-slate-900/90 border-slate-800'
                             }`}
                           >
-                            <div className="flex items-start gap-2.5 flex-1 mr-2">
+                            <div className="flex items-start gap-2.5 flex-1 mr-2 min-w-0">
+                              {/* Quantity Badge in JetBrains Mono */}
                               <span
-                                className={`font-mono text-base font-black ${
-                                  isDone ? 'text-emerald-400 line-through' : 'text-amber-400'
+                                className={`font-mono text-base font-black px-2 py-0.5 rounded-lg flex-shrink-0 ${
+                                  isDone
+                                    ? 'bg-emerald-900/40 text-emerald-300'
+                                    : 'bg-amber-400 text-slate-950 shadow-sm'
                                 }`}
                               >
                                 {item.quantity}x
                               </span>
-                              <div>
+
+                              <div className="min-w-0">
                                 <p
-                                  className={`font-bold leading-tight ${
+                                  className={`font-black text-sm leading-tight truncate ${
                                     isDone ? 'text-slate-400 line-through' : 'text-white'
                                   }`}
                                 >
                                   {item.dish_name}
                                 </p>
-                                <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400 mt-1">
-                                  <span className="uppercase font-semibold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+
+                                <div className="flex flex-wrap items-center gap-1.5 text-[10px] mt-1">
+                                  <span className="uppercase font-mono font-bold text-slate-300 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
                                     {item.station}
                                   </span>
                                   {item.spice_level && (
-                                    <span className="text-rose-400 font-medium">
-                                      • {item.spice_level}
+                                    <span className="font-bold text-rose-300 bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-800/40">
+                                      {item.spice_level}
                                     </span>
                                   )}
                                   {item.notes && (
-                                    <span className="italic text-amber-300/80">
-                                      • {item.notes}
+                                    <span className="font-bold text-amber-200 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 flex items-center gap-1">
+                                      <AlertCircle className="h-3 w-3 text-amber-400" />
+                                      {item.notes}
                                     </span>
                                   )}
                                 </div>
                               </div>
                             </div>
 
-                            {/* Touchscreen-friendly advancement button */}
+                            {/* Touch target for line cooks */}
                             <button
                               onClick={() =>
                                 handleItemStatusToggle(
@@ -371,27 +637,27 @@ export const OrdersPage: React.FC = () => {
                                   item.item_status
                                 )
                               }
-                              title="Tap to toggle cooking state (Pending -> Cooking -> Done)"
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-transform active:scale-95 cursor-pointer shadow-sm ${
+                              title="Advance item: Pending -> Cooking -> Done"
+                              className={`h-10 px-3.5 rounded-xl text-xs font-black tracking-wide flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer flex-shrink-0 ${
                                 isDone
-                                  ? 'bg-emerald-600 text-white border border-emerald-500'
+                                  ? 'bg-emerald-600 text-white shadow-sm'
                                   : isCooking
-                                  ? 'bg-amber-500 text-slate-950 border border-amber-400 animate-pulse'
-                                  : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700'
+                                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-950/50 animate-pulse'
+                                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                               }`}
                             >
                               {isDone ? (
                                 <>
-                                  <Check className="h-3.5 w-3.5" />
+                                  <Check className="h-4 w-4" />
                                   DONE
                                 </>
                               ) : isCooking ? (
                                 <>
-                                  <ChefHat className="h-3.5 w-3.5" />
-                                  COOKING
+                                  <ChefHat className="h-4 w-4" />
+                                  COOK
                                 </>
                               ) : (
-                                'PENDING'
+                                'HOLD'
                               )}
                             </button>
                           </div>
@@ -401,84 +667,80 @@ export const OrdersPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Card Footer: Action Controls */}
+                {/* Bottom Touch Bump Bar */}
                 <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleViewKOT(order.id)}
-                    className="text-xs"
-                    title="View & Print KOT Thermal Receipt"
+                    className="h-11 px-3 text-xs font-mono font-bold border-slate-700 bg-slate-900"
+                    title="Print ASCII KOT Thermal Slip"
                   >
-                    <Printer className="h-3.5 w-3.5 mr-1" />
+                    <Printer className="h-4 w-4 mr-1 text-slate-400" />
                     KOT
                   </Button>
 
-                  <div className="flex items-center gap-2">
+                  {/* High-visibility Action Bump Button */}
+                  <div className="flex-1">
                     {order.status === 'incoming' && (
-                      <Button
-                        size="sm"
-                        variant="primary"
+                      <button
                         onClick={() => handleStatusChange(order.id, 'preparing')}
-                        className="font-bold"
+                        className="w-full h-11 rounded-xl bg-sky-500 hover:bg-sky-400 active:scale-98 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-sky-950/40 flex items-center justify-center gap-2 cursor-pointer transition-all"
                       >
-                        Accept & Fire
-                      </Button>
+                        <ChefHat className="h-4 w-4" />
+                        <span>FIRE TO KITCHEN</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
                     )}
 
                     {order.status === 'preparing' && (
-                      <Button
-                        size="sm"
-                        variant={allItemsDone ? 'primary' : 'outline'}
+                      <button
                         onClick={() => handleStatusChange(order.id, 'ready')}
                         disabled={!allItemsDone}
-                        title={
+                        className={`w-full h-11 rounded-xl font-black text-xs sm:text-sm tracking-wide shadow-lg flex items-center justify-center gap-2 transition-all ${
                           allItemsDone
-                            ? 'Mark order ready for pickup/delivery'
-                            : 'All individual items must be marked DONE before marking ready'
-                        }
-                        className={allItemsDone ? 'font-bold' : ''}
+                            ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-950/50 cursor-pointer active:scale-98'
+                            : 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed opacity-90'
+                        }`}
                       >
-                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                        {allItemsDone ? 'Mark Ready' : `In Prep (${doneItemsCount}/${totalItemsKinds})`}
-                      </Button>
+                        <CheckCircle className="h-4 w-4" />
+                        <span>{allItemsDone ? 'MARK TICKET READY' : `COOKING (${doneItemsCount}/${totalItemsKinds})`}</span>
+                      </button>
                     )}
 
                     {order.status === 'ready' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
+                      <button
                         onClick={() => handleStatusChange(order.id, 'served')}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold border-emerald-500"
+                        className="w-full h-11 rounded-xl bg-indigo-500 hover:bg-indigo-400 active:scale-98 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-indigo-950/40 flex items-center justify-center gap-2 cursor-pointer transition-all"
                       >
-                        Mark Served
-                      </Button>
+                        <Check className="h-4 w-4" />
+                        <span>EXPEDITE &amp; SERVE</span>
+                      </button>
                     )}
 
                     {order.status === 'served' && (
-                      <Button
-                        size="sm"
-                        variant="primary"
+                      <button
                         onClick={() => handleStatusChange(order.id, 'completed')}
+                        className="w-full h-11 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-98 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        Complete Order
-                      </Button>
+                        <span>COMPLETE TICKET</span>
+                      </button>
                     )}
                   </div>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
       )}
 
-      {/* KOT Modal Thermal Receipt Viewer */}
+      {/* ASCII KOT Thermal Receipt Viewer Modal */}
       {selectedKOT && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-lg rounded-2xl bg-[#0f172a] border border-slate-800 p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-lg rounded-2xl bg-[#0b121e] border border-slate-800 p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-black text-white">
                   Kitchen Order Ticket (KOT)
                 </h3>
                 <p className="text-xs font-mono text-amber-400 font-bold">
@@ -487,14 +749,14 @@ export const OrdersPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedKOT(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Thermal Receipt ASCII Display */}
-            <div className="rounded-xl bg-slate-950 p-4 border border-slate-900 font-mono text-xs text-emerald-400 whitespace-pre overflow-x-auto max-h-96 shadow-inner selection:bg-emerald-500 selection:text-black">
+            {/* Thermal Slip */}
+            <div className="rounded-xl bg-black p-4 border border-slate-900 font-mono text-xs text-emerald-400 whitespace-pre overflow-x-auto max-h-96 shadow-inner selection:bg-emerald-500 selection:text-black leading-relaxed">
               {selectedKOT.formatted_ticket}
             </div>
 
@@ -509,12 +771,10 @@ export const OrdersPage: React.FC = () => {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => {
-                  window.print();
-                }}
+                onClick={() => window.print()}
               >
                 <Printer className="h-4 w-4 mr-1" />
-                Print Ticket
+                Print Slip
               </Button>
             </div>
           </div>

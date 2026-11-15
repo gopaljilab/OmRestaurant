@@ -1,14 +1,14 @@
 import React from 'react';
-import { Card } from './Card';
 
 interface StatCardProps {
   title: string;
   value: number | string;
   subtitle?: string;
   icon: React.ReactNode;
-  variant?: 'blue' | 'amber' | 'emerald' | 'purple' | 'default';
+  variant?: 'blue' | 'amber' | 'emerald' | 'purple' | 'rose' | 'default';
   isLoading?: boolean;
   highlight?: boolean;
+  badge?: string;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -19,47 +19,60 @@ export const StatCard: React.FC<StatCardProps> = ({
   variant = 'default',
   isLoading = false,
   highlight = false,
+  badge,
 }) => {
-  const variantGradients = {
-    blue: 'border-l-4 border-l-sky-500 bg-gradient-to-br from-sky-950/30 to-[#131b2e]',
-    amber: 'border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-950/30 to-[#131b2e]',
-    emerald: 'border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-950/30 to-[#131b2e]',
-    purple: 'border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-950/30 to-[#131b2e]',
-    default: 'border-l-4 border-l-slate-600 bg-[#131b2e]',
+  const variantStyles = {
+    blue: 'border-sky-500/40 bg-gradient-to-b from-[#0e213b] to-[#0c1626] shadow-[0_4px_20px_rgba(56,189,248,0.08)]',
+    amber: 'border-amber-500/40 bg-gradient-to-b from-[#261705] to-[#140f06] shadow-[0_4px_20px_rgba(245,158,11,0.08)]',
+    emerald: 'border-emerald-500/40 bg-gradient-to-b from-[#092416] to-[#06160e] shadow-[0_4px_20px_rgba(16,185,129,0.08)]',
+    purple: 'border-purple-500/40 bg-gradient-to-b from-[#21113b] to-[#140b24] shadow-[0_4px_20px_rgba(168,85,247,0.08)]',
+    rose: 'border-rose-500/60 bg-gradient-to-b from-[#2b0c12] to-[#18070a] shadow-[0_4px_25px_rgba(244,63,94,0.18)]',
+    default: 'border-slate-800 bg-[#0f172a] shadow-lg shadow-black/40',
   };
 
   const iconColors = {
-    blue: 'text-sky-400 bg-sky-950/60 border border-sky-800/40',
-    amber: 'text-amber-400 bg-amber-950/60 border border-amber-800/40',
-    emerald: 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/40',
-    purple: 'text-purple-400 bg-purple-950/60 border border-purple-800/40',
-    default: 'text-slate-400 bg-slate-800/60 border border-slate-700/40',
+    blue: 'text-sky-300 bg-sky-950/80 border border-sky-500/40',
+    amber: 'text-amber-300 bg-amber-950/80 border border-amber-500/40',
+    emerald: 'text-emerald-300 bg-emerald-950/80 border border-emerald-500/40',
+    purple: 'text-purple-300 bg-purple-950/80 border border-purple-500/40',
+    rose: 'text-rose-300 bg-rose-950/80 border border-rose-500/50',
+    default: 'text-slate-400 bg-slate-800/80 border border-slate-700/50',
   };
 
   return (
-    <Card
-      className={`relative overflow-hidden transition-all duration-200 hover:translate-y-[-2px] ${
-        variantGradients[variant]
-      } ${highlight ? 'ring-1 ring-amber-500/50' : ''}`}
+    <div
+      className={`relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 ${
+        variantStyles[variant]
+      } ${highlight ? 'ring-2 ring-amber-500/70 shadow-amber-950/50' : ''}`}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
-            {title}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {title}
+            </p>
+            {badge && (
+              <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-mono font-bold text-rose-300 border border-rose-500/30 animate-pulse">
+                {badge}
+              </span>
+            )}
+          </div>
+
           {isLoading ? (
-            <div className="h-9 w-20 animate-pulse rounded bg-slate-800 my-1" />
+            <div className="h-10 w-24 animate-pulse rounded bg-slate-800/80 my-1" />
           ) : (
-            <div className="text-3xl font-extrabold tracking-tight font-mono text-white">
+            <div className="text-3xl sm:text-4xl font-black tracking-tight font-mono text-white">
               {value}
             </div>
           )}
+
           {subtitle && (
-            <p className="text-xs text-slate-400 font-medium">{subtitle}</p>
+            <p className="text-xs text-slate-400 font-medium leading-relaxed">{subtitle}</p>
           )}
         </div>
-        <div className={`p-3 rounded-xl ${iconColors[variant]}`}>{icon}</div>
+
+        <div className={`p-3 rounded-xl flex-shrink-0 ${iconColors[variant]}`}>{icon}</div>
       </div>
-    </Card>
+    </div>
   );
 };
