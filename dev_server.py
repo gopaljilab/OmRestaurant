@@ -32,7 +32,7 @@ SLOT_HALF_WINDOW = timedelta(minutes=90)
 SUPABASE_HOST = os.environ.get("DB_HOST", "aws-0-ap-south-1.pooler.supabase.com")
 SUPABASE_PORT = os.environ.get("DB_PORT", "5432")
 SUPABASE_USER = os.environ.get("DB_USERNAME", "postgres.dpckliukvkdwerjqbxhu")
-SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "")
+SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "pedkUc-fawpuh-noxji6")
 SUPABASE_DB = os.environ.get("DB_NAME", "postgres")
 
 SEED_TABLES = [
