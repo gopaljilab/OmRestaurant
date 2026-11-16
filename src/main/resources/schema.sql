@@ -109,3 +109,49 @@ CREATE INDEX IF NOT EXISTS idx_order_items_dish_slug ON order_items (dish_slug);
 CREATE INDEX IF NOT EXISTS idx_order_items_station_status ON order_items (station, item_status);
 CREATE INDEX IF NOT EXISTS idx_menu_item_status_available ON menu_item_status (is_available);
 
+-- Seed Active Orders for Live Order Status Tracker & KDS
+INSERT INTO orders (id, order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at, accepted_at)
+VALUES (
+    1, '#OM-1001', 'dine_in', 5, 'Vikram Malhotra', '+91 98112 34567', 4, 555.00, 'preparing', 'pending',
+    'Medium spice, prepare naans crisp', CURRENT_TIMESTAMP - INTERVAL '14 minutes', CURRENT_TIMESTAMP - INTERVAL '12 minutes'
+) ON CONFLICT (order_number) DO NOTHING;
+
+INSERT INTO orders (id, order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at)
+VALUES (
+    2, '#OM-1002', 'dine_in', 5, 'Priya Sharma', '+91 99234 56789', 5, 830.00, 'incoming', 'pending',
+    'Urgent table order, birthday celebration', CURRENT_TIMESTAMP - INTERVAL '3 minutes'
+) ON CONFLICT (order_number) DO NOTHING;
+
+INSERT INTO orders (id, order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at, accepted_at, ready_at)
+VALUES (
+    3, '#OM-1003', 'dine_in', 1, 'Ananya Verma', '+91 97123 45678', 2, 600.00, 'ready', 'paid_upi',
+    'All dishes plated and garnished', CURRENT_TIMESTAMP - INTERVAL '25 minutes', CURRENT_TIMESTAMP - INTERVAL '22 minutes', CURRENT_TIMESTAMP - INTERVAL '2 minutes'
+) ON CONFLICT (order_number) DO NOTHING;
+
+INSERT INTO orders (id, order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at, accepted_at)
+VALUES (
+    4, '#OM-1004', 'takeaway', NULL, 'Rahul Gupta', '+91 98987 65432', 2, 490.00, 'preparing', 'paid_cash',
+    'Pack extra green chutney & paper napkins', CURRENT_TIMESTAMP - INTERVAL '8 minutes', CURRENT_TIMESTAMP - INTERVAL '6 minutes'
+) ON CONFLICT (order_number) DO NOTHING;
+
+INSERT INTO orders (id, order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at, accepted_at, ready_at, completed_at)
+VALUES (
+    5, '#OM-1005', 'dine_in', 5, 'Deepak Singhal', '+91 94120 12345', 8, 1520.00, 'served', 'paid_card',
+    'Large family dinner, dessert course served', CURRENT_TIMESTAMP - INTERVAL '48 minutes', CURRENT_TIMESTAMP - INTERVAL '44 minutes', CURRENT_TIMESTAMP - INTERVAL '20 minutes', CURRENT_TIMESTAMP - INTERVAL '10 minutes'
+) ON CONFLICT (order_number) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('orders', 'id'), COALESCE((SELECT MAX(id) FROM orders), 1), true);
+
+INSERT INTO order_items (order_id, dish_slug, dish_name, category, station, unit_price, quantity, spice_level, item_status, notes)
+SELECT 1, 'paneer-butter-masala', 'Paneer Butter Masala', 'Indian Main Course', 'curry', 260.00, 1, 'Medium', 'cooking', 'Velvety gravy'
+WHERE NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = 1 AND dish_slug = 'paneer-butter-masala');
+
+INSERT INTO order_items (order_id, dish_slug, dish_name, category, station, unit_price, quantity, spice_level, item_status, notes)
+SELECT 1, 'butter-naan', 'Butter Naan', 'Rice, Biryani & Breads', 'tandoor', 45.00, 3, 'Mild', 'cooking', 'Well-done crisp'
+WHERE NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = 1 AND dish_slug = 'butter-naan');
+
+INSERT INTO order_items (order_id, dish_slug, dish_name, category, station, unit_price, quantity, spice_level, item_status, notes)
+SELECT 1, 'sweet-lassi', 'Sweet Lassi', 'Beverages & Shakes', 'beverage', 80.00, 2, 'Mild', 'done', 'Chilled'
+WHERE NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = 1 AND dish_slug = 'sweet-lassi');
+
+

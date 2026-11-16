@@ -31,6 +31,9 @@ public class OrderControllerTest {
     private OrderController orderController;
 
     @Autowired
+    private TrackOrderAliasController trackOrderAliasController;
+
+    @Autowired
     private MenuAvailabilityController menuAvailabilityController;
 
     @Autowired
@@ -48,7 +51,7 @@ public class OrderControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(orderController, menuAvailabilityController)
+                .standaloneSetup(orderController, menuAvailabilityController, trackOrderAliasController)
                 .setControllerAdvice(exceptionHandler)
                 .build();
 
@@ -309,7 +312,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/orders/track finds order by order_number and phone")
+    @DisplayName("GET /api/orders/track and /api/track-order finds order by order_number (case-insensitive) and phone")
     void testTrackOrder() throws Exception {
         CreateOrderRequest req = new CreateOrderRequest(
                 "dine_in",
@@ -323,20 +326,31 @@ public class OrderControllerTest {
         );
         com.omrestaurant.model.Order created = orderService.createOrder(req);
 
-        // 1. Track by exact order_number
+        // 1. Track by exact order_number via /api/orders/track
         mockMvc.perform(get("/api/orders/track").param("query", created.orderNumber()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.order_number", is(created.orderNumber())))
                 .andExpect(jsonPath("$.customer_name", is("Track Customer")))
                 .andExpect(jsonPath("$.items", hasSize(1)));
 
-        // 2. Track by phone
-        mockMvc.perform(get("/api/orders/track").param("phone", "9888812345"))
+        // 2. Track via /api/track-order alias with 'search' parameter (case-insensitive lowercase)
+        mockMvc.perform(get("/api/track-order").param("search", created.orderNumber().toLowerCase()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.order_number", is(created.orderNumber())))
+                .andExpect(jsonPath("$.customer_name", is("Track Customer")));
+
+        // 3. Track with leading '#' prefix
+        mockMvc.perform(get("/api/track-order").param("search", "#" + created.orderNumber()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.order_number", is(created.orderNumber())));
 
-        // 3. Track unknown order returns 404
-        mockMvc.perform(get("/api/orders/track").param("query", "OM-NONEXISTENT"))
+        // 4. Track by phone (digits only)
+        mockMvc.perform(get("/api/track-order").param("search", "9888812345"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.order_number", is(created.orderNumber())));
+
+        // 5. Track unknown order returns 404
+        mockMvc.perform(get("/api/track-order").param("search", "OM-NONEXISTENT"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", containsString("No order found")));
     }

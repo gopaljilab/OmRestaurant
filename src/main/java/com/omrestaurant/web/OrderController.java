@@ -37,14 +37,17 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrders(status));
     }
 
-    @GetMapping("/track")
+    @GetMapping({"/track", "/track-order"})
     public ResponseEntity<?> trackOrder(
+            @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "query", required = false) String query,
             @RequestParam(name = "orderNumber", required = false) String orderNumber,
             @RequestParam(name = "phone", required = false) String phone) {
-        String searchTerm = query != null && !query.isBlank()
-                ? query
-                : (orderNumber != null && !orderNumber.isBlank() ? orderNumber : phone);
+        String searchTerm = search != null && !search.isBlank()
+                ? search
+                : (query != null && !query.isBlank()
+                    ? query
+                    : (orderNumber != null && !orderNumber.isBlank() ? orderNumber : phone));
         if (searchTerm == null || searchTerm.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Please provide an order number or phone number."));
         }

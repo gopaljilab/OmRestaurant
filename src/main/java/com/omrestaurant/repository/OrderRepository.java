@@ -180,8 +180,10 @@ public class OrderRepository {
         String clean = query.trim();
         String stripped = clean.startsWith("#") ? clean.substring(1).trim() : clean;
         String withOm = stripped.toUpperCase().startsWith("OM-") ? stripped : "OM-" + stripped;
+        String withOmHash = "#" + (withOm.startsWith("#") ? withOm.substring(1) : withOm);
         String phoneDigits = clean.replaceAll("[^0-9]", "");
         String phonePattern = phoneDigits.length() >= 4 ? "%" + phoneDigits + "%" : "%__NO_MATCH__%";
+        String namePattern = "%" + clean + "%";
 
         String sql = """
                 SELECT o.id, o.order_number, o.order_type, o.table_id, t.table_number, t.zone,
@@ -193,11 +195,15 @@ public class OrderRepository {
                 WHERE UPPER(o.order_number) = UPPER(?)
                    OR UPPER(o.order_number) = UPPER(?)
                    OR UPPER(o.order_number) = UPPER(?)
-                   OR (REPLACE(REPLACE(REPLACE(REPLACE(o.customer_phone, ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                   OR o.customer_phone = ?
+                   OR CAST(o.id AS TEXT) = ?
+                   OR (REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(o.customer_phone, ''), ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?)
+                   OR LOWER(o.customer_name) LIKE LOWER(?)
                 ORDER BY o.id DESC
                 LIMIT 5
                 """;
-        List<Order> orders = jdbc.query(sql, orderRowMapper, clean, stripped, withOm, phonePattern);
+        List<Order> orders = jdbc.query(sql, orderRowMapper, clean, stripped, withOm, withOmHash, clean, stripped, phonePattern, namePattern);
         List<Order> fullOrders = new ArrayList<>();
         for (Order o : orders) {
             fullOrders.add(o.withItems(findItemsByOrderId(o.id())));

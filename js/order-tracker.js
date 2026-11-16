@@ -97,19 +97,8 @@
             });
         });
 
-        // Delegate sample order pills
+        // Refresh button listener
         document.addEventListener('click', function (e) {
-            const chip = e.target.closest('.om-sample-order-chip');
-            if (chip) {
-                e.preventDefault();
-                const orderNum = chip.getAttribute('data-order');
-                if (orderNum) {
-                    const inputs = document.querySelectorAll('.om-order-track-input');
-                    inputs.forEach(i => i.value = orderNum);
-                    trackOrder(orderNum);
-                }
-            }
-
             const refreshBtn = e.target.closest('.om-track-refresh-btn');
             if (refreshBtn && currentTrackingOrder) {
                 e.preventDefault();
@@ -117,9 +106,13 @@
             }
         });
 
-        // Check URL params for direct link: ?order=OM-1001 or #track-order
+        // Check URL params for direct link: ?order=OM-1001 or ?search=... or ?query=...
         const urlParams = new URLSearchParams(window.location.search);
-        const orderFromUrl = urlParams.get('order') || urlParams.get('orderNumber') || urlParams.get('query');
+        const orderFromUrl = urlParams.get('order')
+            || urlParams.get('orderNumber')
+            || urlParams.get('search')
+            || urlParams.get('query')
+            || urlParams.get('phone');
         if (orderFromUrl) {
             const inputs = document.querySelectorAll('.om-order-track-input');
             inputs.forEach(i => i.value = orderFromUrl);
@@ -154,8 +147,10 @@
 
     function trackOrder(searchTerm, sourceForm) {
         if (!searchTerm) return;
-        currentTrackingOrder = searchTerm;
-        sessionStorage.setItem('om_last_order', searchTerm);
+        const cleanTerm = searchTerm.trim();
+        if (!cleanTerm) return;
+        currentTrackingOrder = cleanTerm;
+        sessionStorage.setItem('om_last_order', cleanTerm);
 
         setFormLoading(sourceForm, true);
 
@@ -165,29 +160,44 @@
             pollInterval = null;
         }
 
-        const endpoint = `/api/orders/track?query=${encodeURIComponent(searchTerm)}`;
+        const encoded = encodeURIComponent(cleanTerm);
+        const primaryEndpoint = `/api/orders/track?search=${encoded}&query=${encoded}&orderNumber=${encoded}&phone=${encoded}`;
+        const fallbackEndpoint = `/api/track-order?search=${encoded}&query=${encoded}`;
 
-        fetch(endpoint, {
+        function parseOrderJson(res) {
+            if (!res.ok) {
+                return res.json().catch(() => ({})).then(errData => {
+                    const msg = errData.error || errData.message || `Order not found (Status ${res.status})`;
+                    const err = new Error(msg);
+                    err.status = res.status;
+                    throw err;
+                });
+            }
+            return res.json();
+        }
+
+        fetch(primaryEndpoint, {
             headers: { 'Accept': 'application/json' }
         })
             .then(res => {
-                if (!res.ok) {
-                    return res.json().catch(() => ({})).then(errData => {
-                        const err = new Error(errData.error || `Order not found (Status ${res.status})`);
-                        err.status = res.status;
-                        throw err;
-                    });
+                if (res.status === 404) {
+                    return fetch(fallbackEndpoint, { headers: { 'Accept': 'application/json' } })
+                        .then(parseOrderJson);
                 }
-                return res.json();
+                return parseOrderJson(res);
             })
-            .then(order => {
+            .then(data => {
+                const order = (data && data.data) ? data.data : data;
+                if (!order || (!order.id && !order.order_number)) {
+                    throw new Error("No order found matching '" + cleanTerm + "'. Please check your order number or phone.");
+                }
                 renderOrderResult(order);
                 setFormLoading(sourceForm, false);
 
                 // Setup auto-refresh if order is in progress
                 const normStatus = (order.status || '').toLowerCase();
                 if (normStatus === 'incoming' || normStatus === 'preparing' || normStatus === 'ready') {
-                    startAutoPoll(searchTerm);
+                    startAutoPoll(cleanTerm);
                 }
             })
             .catch(err => {
@@ -198,16 +208,18 @@
 
     function startAutoPoll(searchTerm) {
         if (pollInterval) clearInterval(pollInterval);
+        const encoded = encodeURIComponent(searchTerm);
         pollInterval = setInterval(() => {
             if (!currentTrackingOrder || currentTrackingOrder !== searchTerm) {
                 clearInterval(pollInterval);
                 return;
             }
-            fetch(`/api/orders/track?query=${encodeURIComponent(searchTerm)}`, {
+            fetch(`/api/orders/track?search=${encoded}&query=${encoded}`, {
                 headers: { 'Accept': 'application/json' }
             })
                 .then(res => res.ok ? res.json() : null)
-                .then(order => {
+                .then(data => {
+                    const order = (data && data.data) ? data.data : data;
                     if (order) {
                         renderOrderResult(order, true);
                         const norm = (order.status || '').toLowerCase();

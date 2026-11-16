@@ -233,10 +233,11 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(200, tables_payload)
             return
 
-        if parsed.path.rstrip("/") == "/api/orders/track":
+        if parsed.path.rstrip("/") in ("/api/orders/track", "/api/track-order", "/api/orders/track-order"):
             qs = urllib.parse.parse_qs(parsed.query)
             query_term = (
-                qs.get("query", [""])[0].strip()
+                qs.get("search", [""])[0].strip()
+                or qs.get("query", [""])[0].strip()
                 or qs.get("orderNumber", [""])[0].strip()
                 or qs.get("phone", [""])[0].strip()
             )
@@ -272,6 +273,7 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
         with_om_hash = f"#{with_om}"
         phone_digits = "".join(filter(str.isdigit, clean))
         phone_pattern = f"%{phone_digits}%" if len(phone_digits) >= 4 else "%__NO_MATCH__%"
+        name_pattern = f"%{clean.lower()}%"
 
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
@@ -285,11 +287,13 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
             LEFT JOIN tables t ON t.id = o.table_id
             WHERE UPPER(o.order_number) IN (?, ?, ?, ?)
                OR CAST(o.id AS TEXT) = ?
+               OR o.customer_phone = ?
                OR (REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(o.customer_phone, ''), ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?)
+               OR LOWER(o.customer_name) LIKE ?
             ORDER BY o.id DESC
             LIMIT 1
             """,
-            (stripped.upper(), with_hash.upper(), with_om.upper(), with_om_hash.upper(), stripped, phone_pattern),
+            (stripped.upper(), with_hash.upper(), with_om.upper(), with_om_hash.upper(), stripped, clean, phone_pattern, name_pattern),
         ).fetchone()
 
         if not row:
