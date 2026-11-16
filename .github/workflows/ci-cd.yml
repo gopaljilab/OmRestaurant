@@ -44,7 +44,7 @@ jobs:
       - name: Verify root and Spring Boot static asset parity
         run: |
           diff -u css/style.css src/main/resources/static/css/style.css
-          for f in animations.js email-config.js email-service.js main.js particles.js table-picker.js webgl-hero.js; do
+          for f in animations.js email-config.js email-service.js main.js menu-filter.js menu-order.js order-tracker.js particles.js table-picker.js vanish-input.js webgl-hero.js; do
             diff -u "js/$f" "src/main/resources/static/js/$f"
           done
           for p in booking.html src/main/resources/static/booking.html; do

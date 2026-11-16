@@ -166,6 +166,7 @@
             } catch (e) {}
         }
 
+        if (preorder) {
             const preorderInput = document.getElementById('selectedPreorder');
             if (preorderInput) {
                 preorderInput.value = preorder;
