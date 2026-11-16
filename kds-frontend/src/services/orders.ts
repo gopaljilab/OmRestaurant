@@ -1,4 +1,5 @@
 import { apiClient } from './api';
+import { isDemoModeActive, demoOrdersService } from './demoMode';
 import type {
   Order,
   OrderStatus,
@@ -13,6 +14,9 @@ export const ordersApi = {
    * e.g. status = 'incoming' | 'preparing' | 'ready' | 'served' | 'completed' | 'cancelled'
    */
   async getOrders(status?: string): Promise<Order[]> {
+    if (isDemoModeActive()) {
+      return demoOrdersService.getOrders(status);
+    }
     const query = status ? `?status=${encodeURIComponent(status)}` : '';
     return apiClient.get<Order[]>(`/api/orders${query}`);
   },
@@ -21,6 +25,9 @@ export const ordersApi = {
    * Fetch a single order by ID with all line items.
    */
   async getOrderById(id: number): Promise<Order> {
+    if (isDemoModeActive()) {
+      return demoOrdersService.getOrderById(id);
+    }
     return apiClient.get<Order>(`/api/orders/${id}`);
   },
 
@@ -35,6 +42,9 @@ export const ordersApi = {
    * Transition an order to a new status (e.g. preparing, ready, served, completed, cancelled).
    */
   async updateOrderStatus(id: number, status: OrderStatus): Promise<Order> {
+    if (isDemoModeActive()) {
+      return demoOrdersService.updateOrderStatus(id, status);
+    }
     return apiClient.patch<Order>(`/api/orders/${id}/status`, { status });
   },
 
@@ -47,6 +57,9 @@ export const ordersApi = {
     itemId: number,
     itemStatus: OrderItemStatus
   ): Promise<Order> {
+    if (isDemoModeActive()) {
+      return demoOrdersService.updateOrderItemStatus(orderId, itemId, itemStatus);
+    }
     return apiClient.patch<Order>(`/api/orders/${orderId}/items/${itemId}`, {
       item_status: itemStatus,
     });
@@ -57,6 +70,9 @@ export const ordersApi = {
    * including station groupings and ASCII thermal ticket.
    */
   async getKOT(id: number): Promise<KitchenOrderTicket> {
+    if (isDemoModeActive()) {
+      return demoOrdersService.getKOT(id);
+    }
     return apiClient.get<KitchenOrderTicket>(`/api/orders/${id}/kot`);
   },
 };

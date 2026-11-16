@@ -17,6 +17,8 @@ import {
   Check,
   Volume2,
   VolumeX,
+  Globe,
+  Play,
 } from 'lucide-react';
 import { StatCard } from '../../components/ui/StatCard';
 import { Card } from '../../components/ui/Card';
@@ -25,6 +27,8 @@ import { Button } from '../../components/ui/Button';
 import { ordersApi } from '../../services/orders';
 import { soundService } from '../../services/sound';
 import { usePolling } from '../../hooks/usePolling';
+import { getApiBaseUrl, setApiBaseUrl } from '../../services/api';
+import { isDemoModeActive, setDemoModeActive, resetDemoData } from '../../services/demoMode';
 import type { Order } from '../../types';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -52,6 +56,9 @@ export const OverviewPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(soundService.isMuted());
   const [actionInProgress, setActionInProgress] = useState<number | null>(null);
+  const [isDemo, setIsDemo] = useState<boolean>(isDemoModeActive());
+  const [customApiUrl, setCustomApiUrl] = useState<string>(getApiBaseUrl());
+  const [isConfiguringApi, setIsConfiguringApi] = useState<boolean>(false);
 
   const fetchOrders = useCallback(async (manual = false) => {
     if (manual) setIsRefreshing(true);
@@ -61,14 +68,38 @@ export const OverviewPage: React.FC = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to load orders', err);
+      const target = getApiBaseUrl() || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080');
+      const errorMsg = err instanceof Error ? err.message : String(err);
       setError(
-        'Unable to connect to Kitchen REST API at http://localhost:8080. Ensure the Spring Boot backend is running.'
+        `Unable to connect to Kitchen REST API at "${target}". ${errorMsg}`
       );
     } finally {
       setIsLoading(false);
       if (manual) setIsRefreshing(false);
     }
   }, []);
+
+  const handleEnableDemoMode = () => {
+    setDemoModeActive(true);
+    setIsDemo(true);
+    setError(null);
+    fetchOrders(true);
+  };
+
+  const handleDisableDemoMode = () => {
+    setDemoModeActive(false);
+    setIsDemo(false);
+    fetchOrders(true);
+  };
+
+  const handleSaveApiUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    setApiBaseUrl(customApiUrl);
+    setDemoModeActive(false);
+    setIsDemo(false);
+    setIsConfiguringApi(false);
+    fetchOrders(true);
+  };
 
   // Real-time polling every 5 seconds
   usePolling(() => fetchOrders(false), 5000);
@@ -372,17 +403,126 @@ export const OverviewPage: React.FC = () => {
         </div>
       )}
 
-      {/* Backend connection warning */}
-      {error && (
-        <div className="rounded-xl bg-rose-950/60 border border-rose-800 p-4 text-rose-200 flex items-start gap-3 shadow-lg">
-          <AlertTriangle className="h-5 w-5 text-rose-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 text-xs">
-            <p className="font-bold text-rose-300 font-mono">BACKEND REST API UNREACHABLE</p>
-            <p className="text-rose-200/90 mt-0.5">{error}</p>
+      {/* Standalone Simulator (Demo Mode) Active Banner */}
+      {isDemo && (
+        <div className="rounded-xl bg-amber-950/60 border-2 border-amber-500/70 p-4 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl shadow-amber-950/40">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40">
+              <Play className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-white font-mono uppercase tracking-wide">
+                KITCHEN SIMULATOR ACTIVE (STANDALONE DEMO)
+              </p>
+              <p className="text-xs text-amber-300 mt-0.5">
+                Displaying interactive realistic orders across all 5 prep lines. You can test accepting, cooking, and bumping tickets.
+              </p>
+            </div>
           </div>
-          <Button variant="secondary" size="sm" onClick={() => fetchOrders(true)} className="text-xs font-mono">
-            RETRY
-          </Button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={() => {
+                resetDemoData();
+                fetchOrders(true);
+              }}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold cursor-pointer transition-all border border-amber-500/30"
+            >
+              RESET DEMO ORDERS
+            </button>
+            <button
+              onClick={handleDisableDemoMode}
+              className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white text-xs font-mono font-black uppercase cursor-pointer transition-all shadow"
+            >
+              SWITCH TO LIVE REST API
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Backend Connection Diagnostics & Target Config */}
+      {error && !isDemo && (
+        <div className="rounded-2xl bg-[#1f090e] border-2 border-rose-600/80 p-5 text-rose-200 space-y-4 shadow-2xl">
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-rose-600/20 text-rose-400 border border-rose-500/40 flex-shrink-0 mt-0.5">
+                <AlertTriangle className="h-6 w-6 stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-mono font-black text-sm sm:text-base text-white uppercase tracking-wide">
+                  BACKEND REST API UNREACHABLE
+                </h3>
+                <p className="text-xs text-rose-200/90 leading-relaxed font-mono">
+                  {error}
+                </p>
+                <div className="text-[11px] text-rose-300/80 pt-1 space-y-0.5 font-sans">
+                  <p>
+                    <strong>Why this happens on Vercel:</strong> Vercel hosts the static React/Vite frontend. It does not execute the Java Spring Boot backend server.
+                  </p>
+                  <p>
+                    <strong>Solution:</strong> Either point the KDS to a deployed Spring Boot URL (Render, Railway, Fly.io, or an Ngrok tunnel) using the button below, or launch Demo Mode to test the full kitchen UI immediately.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 flex-shrink-0 self-start lg:self-auto">
+              <button
+                onClick={handleEnableDemoMode}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-mono text-xs font-black uppercase cursor-pointer transition-all shadow-lg shadow-amber-950/50 flex items-center gap-1.5"
+              >
+                <Play className="h-4 w-4" />
+                LAUNCH DEMO MODE
+              </button>
+              <button
+                onClick={() => setIsConfiguringApi(!isConfiguringApi)}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-mono text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5"
+              >
+                <Globe className="h-4 w-4 text-sky-400" />
+                CONFIGURE BACKEND URL
+              </button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => fetchOrders(true)}
+                className="font-mono text-xs"
+              >
+                RETRY
+              </Button>
+            </div>
+          </div>
+
+          {/* Inline backend URL configuration input */}
+          {isConfiguringApi && (
+            <form onSubmit={handleSaveApiUrl} className="pt-3 border-t border-rose-900/60 flex flex-col sm:flex-row gap-2.5">
+              <div className="relative flex-1">
+                <Globe className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="url"
+                  placeholder="e.g. https://om-restaurant-api.onrender.com or http://localhost:8080"
+                  value={customApiUrl}
+                  onChange={(e) => setCustomApiUrl(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-mono text-xs font-black uppercase cursor-pointer transition-all shadow"
+              >
+                SAVE & CONNECT
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomApiUrl('');
+                  setApiBaseUrl('');
+                  fetchOrders(true);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-mono cursor-pointer"
+              >
+                RESET DEFAULT
+              </button>
+            </form>
+          )}
         </div>
       )}
 

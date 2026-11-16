@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import type { ApiHealthState } from '../../services/health';
+import { isDemoModeActive } from '../../services/demoMode';
 
 interface HeaderProps {
   onToggleMobileSidebar?: () => void;
@@ -119,6 +120,11 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 border border-amber-500/30 whitespace-nowrap">
                 PASS v2.0
               </span>
+              {isDemoModeActive() && (
+                <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-mono font-black uppercase text-amber-300 border border-amber-500/40 whitespace-nowrap animate-pulse">
+                  SIMULATOR
+                </span>
+              )}
             </div>
             <p className="text-[11px] text-slate-400 font-medium hidden md:block">
               Kitchen Display & Operations
