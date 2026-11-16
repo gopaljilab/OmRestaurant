@@ -19,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class FormService {
     private static final long SLOT_HALF_WINDOW_MINUTES = 90L;
     private final JdbcTemplate jdbc;
+    private final MenuCatalog menuCatalog;
 
-    public FormService(JdbcTemplate jdbc) {
+    public FormService(JdbcTemplate jdbc, MenuCatalog menuCatalog) {
         this.jdbc = jdbc;
+        this.menuCatalog = menuCatalog;
     }
 
     public List<RestaurantTable> getTableAvailability(LocalDate date, LocalTime time) {
@@ -191,6 +193,55 @@ public class FormService {
         }
 
         return table;
+    }
+
+    @Transactional
+    public void createPreOrderIfPresent(Long tableId, String customerName, String customerPhone, int people, LocalDateTime bookingTime, String preorderText) {
+        if (preorderText == null || preorderText.isBlank()) {
+            return;
+        }
+
+        java.util.List<com.omrestaurant.model.MenuItem> items = new java.util.ArrayList<>();
+        for (String part : preorderText.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                menuCatalog.findBySlugOrName(trimmed).ifPresent(items::add);
+            }
+        }
+
+        if (items.isEmpty()) {
+            return;
+        }
+
+        java.math.BigDecimal total = items.stream()
+                .map(com.omrestaurant.model.MenuItem::price)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        String tableNumber = null;
+        if (tableId != null) {
+            try {
+                tableNumber = jdbc.queryForObject("SELECT table_number FROM tables WHERE id = ?", String.class, tableId);
+            } catch (Exception ignored) {}
+        }
+
+        String notes = "Pre-order for Table " + (tableNumber != null ? tableNumber : (tableId != null ? tableId : "TBD")) + " Reservation (" + bookingTime + ")";
+
+        Long orderId = jdbc.queryForObject(
+                "INSERT INTO orders (order_number, order_type, table_id, customer_name, customer_phone, guest_count, total_amount, status, payment_status, special_notes, created_at) " +
+                "VALUES ('OM-' || nextval('order_number_seq'), 'pre_order', ?, ?, ?, ?, ?, 'incoming', 'pending', ?, CURRENT_TIMESTAMP) RETURNING id",
+                Long.class,
+                tableId, customerName, customerPhone, people, total, notes
+        );
+
+        if (orderId != null) {
+            for (com.omrestaurant.model.MenuItem item : items) {
+                jdbc.update(
+                        "INSERT INTO order_items (order_id, dish_slug, dish_name, category, station, unit_price, quantity, spice_level, item_status, notes, created_at) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, 1, 'medium', 'pending', '', CURRENT_TIMESTAMP)",
+                        orderId, item.slug(), item.name(), item.category(), item.station(), item.price()
+                );
+            }
+        }
     }
 
     public void saveContact(String name, String email, String subject, String message) {

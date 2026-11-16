@@ -166,8 +166,24 @@
             } catch (e) {}
         }
 
-        if (preorder) {
+            const preorderInput = document.getElementById('selectedPreorder');
+            if (preorderInput) {
+                preorderInput.value = preorder;
+            }
+
             const form = document.querySelector('form[action="/bookings"]');
+            if (form) {
+                if (preorderInput && !preorderInput.value) {
+                    preorderInput.value = preorder;
+                }
+                form.addEventListener('submit', function () {
+                    const pi = document.getElementById('selectedPreorder');
+                    if (pi && !pi.value && preorder) {
+                        pi.value = preorder;
+                    }
+                });
+            }
+
             if (form && !document.getElementById('omPreorderNotice')) {
                 const notice = document.createElement('div');
                 notice.id = 'omPreorderNotice';

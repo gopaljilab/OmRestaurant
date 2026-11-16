@@ -34,6 +34,7 @@ public class FormController {
                           @RequestParam(name = "people", defaultValue = "") String people,
                           @RequestParam(name = "request", defaultValue = "") String request,
                           @RequestParam(name = "table_id", required = false) String tableIdParam,
+                          @RequestParam(name = "preorder", required = false) String preorder,
                           HttpServletRequest httpRequest) {
         boolean wantsJson = expectsJson(httpRequest);
         try {
@@ -54,6 +55,22 @@ public class FormController {
             String reservationId = bookingResult.reservationId() != null
                     ? bookingResult.reservationId()
                     : (bookingId != null ? "OM-B" + bookingId : "OM-B" + System.currentTimeMillis());
+
+            // Automatically create Kitchen Order Ticket if pre-ordered dishes were attached
+            String preorderedDishes = (preorder != null && !preorder.isBlank()) ? preorder : "";
+            if (preorderedDishes.isBlank() && request.contains("Pre-ordered Dishes:")) {
+                preorderedDishes = request.substring(request.indexOf("Pre-ordered Dishes:") + "Pre-ordered Dishes:".length()).trim();
+            }
+            if (!preorderedDishes.isBlank()) {
+                forms.createPreOrderIfPresent(
+                        selectedTable != null ? selectedTable.id() : tableId,
+                        name.trim(),
+                        email.trim(),
+                        partySize,
+                        bookingTime,
+                        preorderedDishes
+                );
+            }
 
             if (wantsJson) {
                 Map<String, Object> body = new LinkedHashMap<>();
