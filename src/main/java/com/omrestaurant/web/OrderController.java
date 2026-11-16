@@ -1,5 +1,6 @@
 package com.omrestaurant.web;
 
+import com.omrestaurant.exception.OrderNotFoundException;
 import com.omrestaurant.model.KitchenOrderTicket;
 import com.omrestaurant.model.Order;
 import com.omrestaurant.model.dto.CreateOrderRequest;
@@ -9,6 +10,8 @@ import com.omrestaurant.service.OrderService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,6 +35,31 @@ public class OrderController {
     public ResponseEntity<List<Order>> getOrders(
             @RequestParam(name = "status", required = false) String status) {
         return ResponseEntity.ok(orderService.getOrders(status));
+    }
+
+    @GetMapping("/track")
+    public ResponseEntity<?> trackOrder(
+            @RequestParam(name = "query", required = false) String query,
+            @RequestParam(name = "orderNumber", required = false) String orderNumber,
+            @RequestParam(name = "phone", required = false) String phone) {
+        String searchTerm = query != null && !query.isBlank()
+                ? query
+                : (orderNumber != null && !orderNumber.isBlank() ? orderNumber : phone);
+        if (searchTerm == null || searchTerm.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Please provide an order number or phone number."));
+        }
+        try {
+            Order order = orderService.getOrderByNumberOrId(searchTerm);
+            return ResponseEntity.ok(order);
+        } catch (OrderNotFoundException ex) {
+            List<Order> matching = orderService.trackOrders(searchTerm);
+            if (!matching.isEmpty()) {
+                return ResponseEntity.ok(matching.get(0));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", "No order found matching '" + searchTerm.trim() + "'. Please check your order number or phone."
+            ));
+        }
     }
 
     @GetMapping("/{id}")

@@ -138,6 +138,73 @@ public class OrderRepository {
         }
     }
 
+    public Optional<Order> findByOrderNumber(String orderNumber) {
+        if (orderNumber == null || orderNumber.isBlank()) {
+            return Optional.empty();
+        }
+        String clean = orderNumber.trim();
+        String stripped = clean.startsWith("#") ? clean.substring(1).trim() : clean;
+        String withOm = stripped.toUpperCase().startsWith("OM-") ? stripped : "OM-" + stripped;
+        String withOmHash = "#" + (withOm.startsWith("#") ? withOm.substring(1) : withOm);
+
+        String sql = """
+                SELECT o.id, o.order_number, o.order_type, o.table_id, t.table_number, t.zone,
+                       o.customer_name, o.customer_phone, o.guest_count, o.total_amount,
+                       o.status, o.payment_status, o.special_notes, o.created_at,
+                       o.accepted_at, o.ready_at, o.completed_at
+                FROM orders o
+                LEFT JOIN tables t ON t.id = o.table_id
+                WHERE UPPER(o.order_number) = UPPER(?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                ORDER BY o.id DESC
+                LIMIT 1
+                """;
+        try {
+            Order order = jdbc.queryForObject(sql, orderRowMapper, clean, stripped, withOm, withOmHash);
+            if (order != null) {
+                List<OrderItem> items = findItemsByOrderId(order.id());
+                return Optional.of(order.withItems(items));
+            }
+            return Optional.empty();
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    public List<Order> findByPhoneOrOrderNumber(String query) {
+        if (query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+        String clean = query.trim();
+        String stripped = clean.startsWith("#") ? clean.substring(1).trim() : clean;
+        String withOm = stripped.toUpperCase().startsWith("OM-") ? stripped : "OM-" + stripped;
+        String phoneDigits = clean.replaceAll("[^0-9]", "");
+        String phonePattern = phoneDigits.length() >= 4 ? "%" + phoneDigits + "%" : "%__NO_MATCH__%";
+
+        String sql = """
+                SELECT o.id, o.order_number, o.order_type, o.table_id, t.table_number, t.zone,
+                       o.customer_name, o.customer_phone, o.guest_count, o.total_amount,
+                       o.status, o.payment_status, o.special_notes, o.created_at,
+                       o.accepted_at, o.ready_at, o.completed_at
+                FROM orders o
+                LEFT JOIN tables t ON t.id = o.table_id
+                WHERE UPPER(o.order_number) = UPPER(?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                   OR UPPER(o.order_number) = UPPER(?)
+                   OR (REPLACE(REPLACE(REPLACE(REPLACE(o.customer_phone, ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?)
+                ORDER BY o.id DESC
+                LIMIT 5
+                """;
+        List<Order> orders = jdbc.query(sql, orderRowMapper, clean, stripped, withOm, phonePattern);
+        List<Order> fullOrders = new ArrayList<>();
+        for (Order o : orders) {
+            fullOrders.add(o.withItems(findItemsByOrderId(o.id())));
+        }
+        return fullOrders;
+    }
+
     public Optional<String> lockOrderForUpdate(long orderId) {
         try {
             return Optional.ofNullable(jdbc.queryForObject(

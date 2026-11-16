@@ -233,7 +233,122 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(200, tables_payload)
             return
 
+        if parsed.path.rstrip("/") == "/api/orders/track":
+            qs = urllib.parse.parse_qs(parsed.query)
+            query_term = (
+                qs.get("query", [""])[0].strip()
+                or qs.get("orderNumber", [""])[0].strip()
+                or qs.get("phone", [""])[0].strip()
+            )
+            if not query_term:
+                self.send_json(400, {"error": "Please provide an order number or phone number."})
+                return
+
+            order_payload = self.lookup_order(query_term)
+            if order_payload:
+                self.send_json(200, order_payload)
+            else:
+                self.send_json(404, {"error": f"No order found matching '{query_term}'. Please check your order number or phone."})
+            return
+
+        if parsed.path.startswith("/api/orders/"):
+            order_ref = parsed.path.replace("/api/orders/", "").strip("/").strip()
+            if order_ref and not order_ref.startswith("track"):
+                order_payload = self.lookup_order(order_ref)
+                if order_payload:
+                    self.send_json(200, order_payload)
+                    return
+                else:
+                    self.send_json(404, {"error": f"Order '{order_ref}' not found."})
+                    return
+
         super().do_GET()
+
+    def lookup_order(self, query_term):
+        clean = query_term.strip()
+        stripped = clean.lstrip("#")
+        with_om = stripped if stripped.upper().startswith("OM-") else f"OM-{stripped}"
+        with_hash = f"#{stripped}"
+        with_om_hash = f"#{with_om}"
+        phone_digits = "".join(filter(str.isdigit, clean))
+        phone_pattern = f"%{phone_digits}%" if len(phone_digits) >= 4 else "%__NO_MATCH__%"
+
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        row = cursor.execute(
+            """
+            SELECT o.id, o.order_number, o.order_type, o.table_id, t.table_number, t.zone,
+                   o.customer_name, o.customer_phone, o.guest_count, o.total_amount,
+                   o.status, o.payment_status, o.special_notes, o.created_at,
+                   o.accepted_at, o.ready_at, o.completed_at
+            FROM orders o
+            LEFT JOIN tables t ON t.id = o.table_id
+            WHERE UPPER(o.order_number) IN (?, ?, ?, ?)
+               OR CAST(o.id AS TEXT) = ?
+               OR (REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(o.customer_phone, ''), ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?)
+            ORDER BY o.id DESC
+            LIMIT 1
+            """,
+            (stripped.upper(), with_hash.upper(), with_om.upper(), with_om_hash.upper(), stripped, phone_pattern),
+        ).fetchone()
+
+        if not row:
+            conn.close()
+            return None
+
+        (oid, onum, otype, tid, tnum, tzone, cname, cphone, gcount,
+         tot, stat, pstat, snotes, cat, aat, rat, cmat) = row
+
+        item_rows = cursor.execute(
+            """
+            SELECT id, order_id, dish_name, category, station,
+                   unit_price, quantity, spice_level, item_status, notes, created_at
+            FROM order_items
+            WHERE order_id = ?
+            ORDER BY id ASC
+            """,
+            (oid,)
+        ).fetchall()
+        conn.close()
+
+        items = []
+        for i_id, i_oid, i_name, i_cat, i_stn, i_price, i_qty, i_spice, i_stat, i_notes, i_created in item_rows:
+            items.append({
+                "id": i_id,
+                "order_id": i_oid,
+                "dish_slug": (i_name or "").lower().replace(" ", "-"),
+                "dish_name": i_name,
+                "category": i_cat,
+                "station": i_stn,
+                "unit_price": float(i_price) if i_price is not None else 0.0,
+                "quantity": i_qty,
+                "spice_level": i_spice or "Mild",
+                "item_status": i_stat or "pending",
+                "notes": i_notes or ""
+            })
+
+        display_num = onum if onum.startswith("#") else f"#{onum}"
+
+        return {
+            "id": oid,
+            "order_number": display_num,
+            "order_type": otype or "dine_in",
+            "table_id": tid,
+            "table_number": tnum or (str(tid) if tid else "-"),
+            "zone": tzone or "Main",
+            "customer_name": cname or "Valued Guest",
+            "customer_phone": cphone or "",
+            "guest_count": gcount or 1,
+            "total_amount": float(tot) if tot is not None else 0.0,
+            "status": stat or "incoming",
+            "payment_status": pstat or "pending",
+            "special_notes": snotes or "",
+            "created_at": cat,
+            "accepted_at": aat,
+            "ready_at": rat,
+            "completed_at": cmat,
+            "items": items
+        }
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))

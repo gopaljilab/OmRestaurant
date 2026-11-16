@@ -79,6 +79,28 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
+    public Order getOrderByNumberOrId(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            throw new OrderNotFoundException("Order reference is required");
+        }
+        String clean = identifier.trim();
+        Optional<Order> orderOpt = orderRepository.findByOrderNumber(clean);
+        if (orderOpt.isEmpty()) {
+            try {
+                long id = Long.parseLong(clean.replace("#", "").trim());
+                orderOpt = orderRepository.findById(id);
+            } catch (NumberFormatException ignored) {}
+        }
+        return orderOpt.orElseThrow(() -> new OrderNotFoundException("Order not found for identifier: " + identifier));
+    }
+
+    public List<Order> trackOrders(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return orderRepository.findByPhoneOrOrderNumber(query);
+    }
+
     private record ValidatedItem(
             com.omrestaurant.model.MenuItem dish,
             int quantity,

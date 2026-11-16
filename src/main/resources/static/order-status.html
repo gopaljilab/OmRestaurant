@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Track Order Status - OM Restaurant Khurja (Est. 1942)</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="OM Restaurant order tracking, check order status Khurja, live kitchen status, pure veg restaurant Khurja" name="keywords">
+    <meta content="Track your pure vegetarian dining order in real-time. Live kitchen progress, cooking station updates, and preparation status from OM Restaurant Khurja." name="description">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <div id="spinner"
+            class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+        <!-- Navbar & Hero Start -->
+        <div class="position-relative p-0 w-100">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 px-lg-5 py-3 py-lg-0">
+                <a href="index.html" class="navbar-brand p-0">
+                    <h1 class="text-primary m-0"><i class="fa fa-utensils me-3"></i>OM Restaurant</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto py-0 pe-4">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="about.html" class="nav-item nav-link">About</a>
+                        <a href="service.html" class="nav-item nav-link">Service</a>
+                        <a href="menu.html" class="nav-item nav-link">Menu</a>
+                        <a href="order-status.html" class="nav-item nav-link active">Track Order</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu m-0">
+                                <a href="booking.html" class="dropdown-item">Booking</a>
+                                <a href="order-status.html" class="dropdown-item active">Track Order</a>
+                                <a href="team.html" class="dropdown-item">Our Team</a>
+                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    </div>
+                    <a href="booking.html" class="btn btn-primary py-2 px-4 rounded-pill fw-bold">Reserve Table</a>
+                </div>
+            </nav>
+
+            <div class="w-100 py-5 bg-dark hero-header mb-5">
+                <div class="container text-center my-5 pt-5 pb-4">
+                    <h1 class="display-3 text-white mb-3 animated slideInDown">Track Order Status</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center text-uppercase">
+                            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                            <li class="breadcrumb-item text-white active" aria-current="page">Track Order</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- Navbar & Hero End -->
+
+        <!-- Order Tracking Section Start -->
+        <section id="track-order" class="container-xxl py-5 om-order-tracking-section">
+            <div class="container">
+                <div class="text-center mx-auto mb-5" style="max-width: 680px;">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Live Kitchen Tracker</h5>
+                    <h1 class="mb-3 text-dark">Real-Time Kitchen Status</h1>
+                    <p class="text-muted">
+                        Enter your Order Number or mobile number to track the cooking progress of your pure vegetarian dishes across our kitchen stations.
+                    </p>
+                </div>
+
+                <!-- Search Card -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 col-xl-7">
+                        <div class="om-order-track-box">
+                            <form class="om-order-track-form">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-4 text-primary">
+                                        <i class="fa fa-receipt fa-lg"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-start-0 border-end-0 om-order-track-input" placeholder="Enter Order # (e.g. OM-1001) or Phone Number" aria-label="Order Number or Phone Number" required autofocus>
+                                    <button class="btn btn-primary rounded-end-pill px-4 px-sm-5 fw-bold" type="submit">
+                                        <i class="fa fa-magnifying-glass me-2"></i>Track Order
+                                    </button>
+                                </div>
+                            </form>
+                            <!-- Sample chips for easy 1-click test -->
+                            <div class="d-flex align-items-center justify-content-center gap-2 mt-3 flex-wrap small">
+                                <span class="text-muted"><i class="fa fa-bolt text-warning me-1"></i>Quick sample:</span>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1001">Order #OM-1001</button>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1002">Order #OM-1002</button>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1003">Order #OM-1003</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Order Result Container -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 col-xl-9">
+                        <div class="om-order-result-container d-none"></div>
+                    </div>
+                </div>
+
+                <!-- Info Cards below tracker -->
+                <div class="row g-4 justify-content-center mt-5">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 text-center rounded-4 h-100 bg-light">
+                            <div class="mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 56px; height: 56px;">
+                                    <i class="fa fa-fire fa-lg"></i>
+                                </span>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">Live Kitchen Stations</h6>
+                            <p class="text-muted small mb-0">Separate stations for Tandoor, Mughlai Curries, South Indian, and Indo-Chinese ensure authentic flavors.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 text-center rounded-4 h-100 bg-light">
+                            <div class="mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style="width: 56px; height: 56px;">
+                                    <i class="fa fa-leaf fa-lg"></i>
+                                </span>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">100% Pure Vegetarian</h6>
+                            <p class="text-muted small mb-0">Prepared with pure desi ghee and fresh farm ingredients under strict sattvic hygiene standards since 1942.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 text-center rounded-4 h-100 bg-light">
+                            <div class="mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle" style="width: 56px; height: 56px;">
+                                    <i class="fa fa-headset fa-lg"></i>
+                                </span>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">Instant Support</h6>
+                            <p class="text-muted small mb-0">Need custom spice levels or urgent changes? Call our hospitality line directly at <a href="tel:+919389734344" class="text-primary fw-bold text-decoration-none">+91 93897 34344</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Order Tracking Section End -->
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark text-light footer pt-5 mt-5 om-reveal" data-om-reveal="fade" data-om-delay="0.06">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Company</h4>
+                        <a class="btn btn-link" href="about.html">About Us</a>
+                        <a class="btn btn-link" href="contact.html">Contact Us</a>
+                        <a class="btn btn-link" href="booking.html">Reservation</a>
+                        <a class="btn btn-link" href="menu.html">Our Menu</a>
+                        <a class="btn btn-link" href="service.html">Our Services</a>
+                        <a class="btn btn-link text-primary fw-bold" href="order-status.html">Track Order Status</a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Contact</h4>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Gandhi Road, Khurja, Bulandshahr, Uttar Pradesh 203131</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 9389734344</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@OmRestaurant.com</p>
+                        <div class="d-flex pt-2">
+                            <a class="btn btn-outline-light btn-social" href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://youtube.com" target="_blank" rel="noopener"><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Opening</h4>
+                        <h5 class="text-light fw-normal">Monday - Saturday</h5>
+                        <p>09AM - 09PM</p>
+                        <h5 class="text-light fw-normal">Sunday</h5>
+                        <p>10AM - 08PM</p>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Newsletter</h4>
+                        <p>Share Your Email to Subscribe.</p>
+                        <form action="/newsletter" method="post" data-om-vanish-form>
+                            <div class="position-relative mx-auto" style="max-width: 400px;">
+                                <input class="form-control border-primary w-100 py-3 ps-4" type="email" placeholder="Share your email..." name="email" data-om-vanish="true" required style="padding-right: 125px !important;">
+                                <button type="submit" class="btn btn-primary py-2 px-3 rounded-pill position-absolute top-0 end-0 mt-2 me-2" name="subscribe">Subscribe</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <a class="border-bottom" href="index.html">OmRestaurant</a>, All Right Reserved.
+                            Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <div class="footer-menu">
+                                <a href="index.html">Home</a>
+                                <a href="menu.html">Menu</a>
+                                <a href="booking.html">Booking</a>
+                                <a href="order-status.html">Track Order</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/counterup/counterup.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="lib/gsap/gsap.min.js"></script>
+    <script src="lib/gsap/ScrollToPlugin.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/order-tracker.js"></script>
+</body>
+
+</html>

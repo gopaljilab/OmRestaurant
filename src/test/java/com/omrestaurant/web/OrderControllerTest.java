@@ -307,4 +307,37 @@ public class OrderControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.ok", is(false)));
     }
+
+    @Test
+    @DisplayName("GET /api/orders/track finds order by order_number and phone")
+    void testTrackOrder() throws Exception {
+        CreateOrderRequest req = new CreateOrderRequest(
+                "dine_in",
+                1L,
+                "Track Customer",
+                "+91 98888 12345",
+                2,
+                "pending",
+                "Table near window",
+                List.of(new CreateOrderItemRequest("paneer-butter-masala", "Paneer Butter Masala", "Curries", "curry", new BigDecimal("200.00"), 1, "Medium", null))
+        );
+        com.omrestaurant.model.Order created = orderService.createOrder(req);
+
+        // 1. Track by exact order_number
+        mockMvc.perform(get("/api/orders/track").param("query", created.orderNumber()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.order_number", is(created.orderNumber())))
+                .andExpect(jsonPath("$.customer_name", is("Track Customer")))
+                .andExpect(jsonPath("$.items", hasSize(1)));
+
+        // 2. Track by phone
+        mockMvc.perform(get("/api/orders/track").param("phone", "9888812345"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.order_number", is(created.orderNumber())));
+
+        // 3. Track unknown order returns 404
+        mockMvc.perform(get("/api/orders/track").param("query", "OM-NONEXISTENT"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", containsString("No order found")));
+    }
 }

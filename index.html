@@ -149,10 +149,12 @@
                         <a href="about.html" class="nav-item nav-link">About</a>
                         <a href="service.html" class="nav-item nav-link">Service</a>
                         <a href="menu.html" class="nav-item nav-link">Menu</a>
+                        <a href="#track-order" class="nav-item nav-link">Track Order</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu m-0">
                                 <a href="booking.html" class="dropdown-item">Booking</a>
+                                <a href="#track-order" class="dropdown-item">Track Order</a>
                                 <a href="team.html" class="dropdown-item">Our Team</a>
                                 <a href="testimonial.html" class="dropdown-item">Testimonial</a>
                             </div>
@@ -634,6 +636,53 @@
         </div>
         <!-- Testimonial End -->
 
+        <!-- Order Tracking Start -->
+        <section id="track-order" class="container-xxl py-5 om-order-tracking-section om-reveal" data-om-delay="0.08">
+            <div class="container py-4">
+                <div class="text-center mx-auto mb-5" style="max-width: 680px;">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Live Kitchen Tracker</h5>
+                    <h1 class="mb-3 text-dark">Track Your Pure Veg Dining Order</h1>
+                    <p class="text-muted">
+                        See real-time preparation updates of your handcrafted delicacies directly from our specialized kitchen stations to your table.
+                    </p>
+                </div>
+
+                <!-- Search Input Card -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 col-xl-7">
+                        <div class="om-order-track-box">
+                            <form class="om-order-track-form">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-4 text-primary">
+                                        <i class="fa fa-receipt fa-lg"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-start-0 border-end-0 om-order-track-input" placeholder="Enter Order # (e.g. OM-1001) or Phone Number" aria-label="Order Number or Phone Number" required>
+                                    <button class="btn btn-primary rounded-end-pill px-4 px-sm-5 fw-bold" type="submit">
+                                        <i class="fa fa-magnifying-glass me-2"></i>Track Order
+                                    </button>
+                                </div>
+                            </form>
+                            <!-- Sample chips for easy 1-click test -->
+                            <div class="d-flex align-items-center justify-content-center gap-2 mt-3 flex-wrap small">
+                                <span class="text-muted"><i class="fa fa-bolt text-warning me-1"></i>Quick sample:</span>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1001">Order #OM-1001</button>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1002">Order #OM-1002</button>
+                                <button type="button" class="btn btn-sm om-sample-order-chip" data-order="OM-1003">Order #OM-1003</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Order Result Container -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 col-xl-9">
+                        <div class="om-order-result-container d-none"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Order Tracking End -->
+
         <!-- Reservation Start -->
         <div class="container-xxl py-5 px-0 om-reveal" data-om-delay="0.06">
             <div class="row g-0">
@@ -886,6 +935,7 @@
     <script src="js/email-service.js"></script>
     <script src="js/vanish-input.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/order-tracker.js"></script>
 
     <!-- Dish Quick-View Modal Population Script -->
     <script>

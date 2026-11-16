@@ -3114,4 +3114,192 @@ body > .container-xxl.bg-white.p-0 {
     }
 }
 
+/* ==========================================================================
+   OmRestaurant - Live Order Tracker Styles
+   ========================================================================== */
+.om-order-tracking-section {
+    position: relative;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+}
+
+.om-order-track-box {
+    background: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.om-order-track-box:hover {
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+}
+
+.om-order-track-input {
+    height: 56px;
+    font-size: 1.05rem;
+    border-radius: 50rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    border: 2px solid #E2E8F0;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.om-order-track-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(254, 161, 22, 0.2);
+}
+
+.om-sample-order-chip {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    background: #F1F5F9;
+    border: 1px dashed #CBD5E1;
+    border-radius: 50rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.om-sample-order-chip:hover {
+    background: #FEA116;
+    color: #FFFFFF;
+    border-color: #FEA116;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(254, 161, 22, 0.3);
+}
+
+/* Stepper Progress Bar */
+.om-tracker-stepper {
+    position: relative;
+    padding: 1rem 0;
+}
+
+.om-stepper-track {
+    position: relative;
+    align-items: flex-start;
+}
+
+.om-stepper-track::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: #E2E8F0;
+    z-index: 1;
+}
+
+.om-stepper-progress-bar {
+    position: absolute;
+    top: 24px;
+    left: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #22C55E 0%, #FEA116 100%);
+    z-index: 2;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.om-step-node {
+    position: relative;
+    z-index: 3;
+    flex: 1;
+    max-width: 140px;
+}
+
+.om-step-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    transition: all 0.3s ease;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.om-step-node.is-done .om-step-circle {
+    background: #22C55E;
+    color: #FFFFFF;
+}
+
+.om-step-node.is-active .om-step-circle {
+    background: #FEA116;
+    color: #FFFFFF;
+    animation: omStepPulse 2s infinite;
+}
+
+.om-step-node.is-pending .om-step-circle {
+    background: #F1F5F9;
+    color: #94A3B8;
+}
+
+.om-step-node.is-active .om-step-title {
+    color: #FEA116;
+}
+
+.om-step-node.is-done .om-step-title {
+    color: #0F172B;
+}
+
+.om-step-node.is-pending .om-step-title {
+    color: #94A3B8;
+}
+
+.om-step-title {
+    font-size: 0.88rem;
+    margin-top: 0.35rem;
+}
+
+.om-step-sub {
+    font-size: 0.75rem;
+}
+
+@keyframes omStepPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(254, 161, 22, 0.6);
+    }
+    70% {
+        box-shadow: 0 0 0 14px rgba(254, 161, 22, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(254, 161, 22, 0);
+    }
+}
+
+.om-live-pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #22C55E;
+    animation: omDotBlink 1.4s infinite ease-in-out;
+}
+
+@keyframes omDotBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.85); }
+}
+
+.om-order-items-scroll {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.om-fade-in {
+    animation: omFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes omFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
 
