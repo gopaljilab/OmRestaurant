@@ -575,9 +575,10 @@
 
             var defs = createSvgEl("defs");
 
-            // Warm subtle glow filter for selected table
-            var glowFilter = createSvgEl("filter", { id: glowId, x: "-30%", y: "-30%", width: "160%", height: "160%" });
-            glowFilter.appendChild(createSvgEl("feDropShadow", { dx: "0", dy: "0", stdDeviation: "5", "flood-color": "#FD6B10", "flood-opacity": "0.65" }));
+            // High-contrast radiant gold/amber glow filter for selected table
+            var glowFilter = createSvgEl("filter", { id: glowId, x: "-50%", y: "-50%", width: "200%", height: "200%" });
+            glowFilter.appendChild(createSvgEl("feDropShadow", { dx: "0", dy: "0", stdDeviation: "8", "flood-color": "#FEA116", "flood-opacity": "0.92" }));
+            glowFilter.appendChild(createSvgEl("feDropShadow", { dx: "0", dy: "0", stdDeviation: "3", "flood-color": "#FFD700", "flood-opacity": "1" }));
             defs.appendChild(glowFilter);
 
             // High-contrast diagonal hatching pattern for reserved tables (colorblind-accessible)
@@ -782,6 +783,63 @@
                 });
                 capText.textContent = eff === "reserved" ? "Booked" : table.capacity + " Seats";
                 g.appendChild(capText);
+
+                // High-contrast radiant gold outer ring for selected state
+                if (eff === "selected") {
+                    if (table.shape === "round") {
+                        g.appendChild(createSvgEl("circle", {
+                            class: "om-fp-selected-ring",
+                            cx: table.cx,
+                            cy: table.cy,
+                            r: table.r + 9,
+                            fill: "none",
+                            stroke: "#FFD700",
+                            "stroke-width": "2.5",
+                            "stroke-dasharray": "6 4"
+                        }));
+                    } else {
+                        var rw = table.shape === "booth" ? table.w + 44 : table.w + 18;
+                        var rh = table.shape === "booth" ? table.h + 40 : table.h + 18;
+                        g.appendChild(createSvgEl("rect", {
+                            class: "om-fp-selected-ring",
+                            x: table.cx - rw / 2,
+                            y: table.cy - rh / 2,
+                            width: rw,
+                            height: rh,
+                            rx: "14",
+                            fill: "none",
+                            stroke: "#FFD700",
+                            "stroke-width": "2.5",
+                            "stroke-dasharray": "6 4"
+                        }));
+                    }
+                }
+
+                // Generous invisible touch target overlay for mobile accessibility (min 52px hit area)
+                var touchW = Math.max(table.w ? table.w + 24 : 52, 52);
+                var touchH = Math.max(table.h ? table.h + 24 : 52, 52);
+                if (table.shape === "round") {
+                    g.appendChild(createSvgEl("circle", {
+                        class: "om-fp-touch-target",
+                        cx: table.cx,
+                        cy: table.cy,
+                        r: Math.max((table.r || 24) + 12, 26),
+                        fill: "transparent",
+                        stroke: "none",
+                        "pointer-events": "all"
+                    }));
+                } else {
+                    g.appendChild(createSvgEl("rect", {
+                        class: "om-fp-touch-target",
+                        x: table.cx - touchW / 2,
+                        y: table.cy - touchH / 2,
+                        width: touchW,
+                        height: touchH,
+                        fill: "transparent",
+                        stroke: "none",
+                        "pointer-events": "all"
+                    }));
+                }
 
                 // Selected Checkmark Badge
                 if (eff === "selected") {

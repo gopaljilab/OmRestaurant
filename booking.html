@@ -66,16 +66,8 @@
                         <a href="about.html" class="nav-item nav-link">About</a>
                         <a href="service.html" class="nav-item nav-link">Service</a>
                         <a href="menu.html" class="nav-item nav-link">Menu</a>
+                        <a href="booking.html" class="nav-item nav-link active">Booking</a>
                         <a href="order-status.html" class="nav-item nav-link">Track Order</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu m-0">
-                                <a href="booking.html" class="dropdown-item active">Booking</a>
-                                <a href="order-status.html" class="dropdown-item">Track Order</a>
-                                <a href="team.html" class="dropdown-item">Our Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                            </div>
-                        </div>
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                     </div>
                     <a href="booking.html" class="btn btn-primary py-2 px-4">Book A Table</a>
@@ -132,7 +124,7 @@
                             <form action="/bookings" method="post" novalidate data-om-booking-form>
                                 <input type="hidden" name="table_id" id="selectedTableId" value="">
                                 <input type="hidden" name="preorder" id="selectedPreorder" value="">
-                                <div class="row g-3">
+                                <div class="row g-3 g-md-4">
                                     <div class="col-12">
                                         <div id="om-selected-table-pill" class="om-selected-table-pill">
                                             <span class="om-selected-table-pill__left">
@@ -208,7 +200,12 @@
                             </h5>
                             <small class="text-white-50">Tap or click an available table matching your party size to link it to your reservation</small>
                         </div>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm om-ghost-btn text-white-50" data-bs-dismiss="modal" aria-label="Minimize to standard view">
+                                <i class="fa fa-compress me-1 text-primary"></i> Minimize
+                            </button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                     </div>
                     <div class="modal-body p-3 p-md-4">
                         <div data-om-table-picker="modal"></div>
@@ -255,8 +252,10 @@
                         <a class="btn btn-link" href="about.html">About Us</a>
                         <a class="btn btn-link" href="contact.html">Contact Us</a>
                         <a class="btn btn-link" href="booking.html">Reservation</a>
-                        <a class="btn btn-link" href="about.html">Privacy Policy</a>
-                        <a class="btn btn-link" href="about.html">Terms &amp; Condition</a>
+                        <a class="btn btn-link" href="menu.html">Our Menu</a>
+                        <a class="btn btn-link" href="service.html">Our Services</a>
+                        <a class="btn btn-link" href="team.html">Our Team</a>
+                        <a class="btn btn-link" href="testimonial.html">Testimonials</a>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <h4 class="section-title ff-secondary text-start text-primary fw-normal mb-4">Contact</h4>
