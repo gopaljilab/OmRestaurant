@@ -9,16 +9,31 @@ import sqlite3
 import subprocess
 import urllib.parse
 
+def load_dotenv():
+    env_file = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(env_file):
+        with open(env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"")
+                    if k not in os.environ:
+                        os.environ[k] = v
+
+load_dotenv()
+
 PORT = 8000
 DB_FILE = "omrestaurant.sqlite3"
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 SLOT_HALF_WINDOW = timedelta(minutes=90)
 
-SUPABASE_HOST = "aws-0-eu-west-1.pooler.supabase.com"
-SUPABASE_PORT = "5432"
-SUPABASE_USER = "postgres.ujiftprtpulyhudloyvp"
-SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "wajdu4-gadsaj-qofWep")
-SUPABASE_DB = "postgres"
+SUPABASE_HOST = os.environ.get("DB_HOST", "aws-0-ap-south-1.pooler.supabase.com")
+SUPABASE_PORT = os.environ.get("DB_PORT", "5432")
+SUPABASE_USER = os.environ.get("DB_USERNAME", "postgres.dpckliukvkdwerjqbxhu")
+SUPABASE_PASSWORD = os.environ.get("DB_PASSWORD", "")
+SUPABASE_DB = os.environ.get("DB_NAME", "postgres")
 
 SEED_TABLES = [
     (1, "1", 2, "Window", "available"),
@@ -328,6 +343,7 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
                 "INSERT INTO booking (name, email, booking_at, people, request, table_id) VALUES (?, ?, ?, ?, ?, ?)",
                 (name, email, date, people, request_text, table_id),
             )
+            booking_id = cursor.lastrowid
             conn.commit()
 
             db_date = date if date else "NOW()"
@@ -339,8 +355,15 @@ class DevServerHandler(http.server.SimpleHTTPRequestHandler):
             )
 
             conn.close()
+            reservation_id = f"OM-B{booking_id}" if booking_id else f"OM-B{int(datetime.now().timestamp())}"
             if wants_json:
-                payload = {"ok": True, "status": "booking-success"}
+                payload = {
+                    "ok": True,
+                    "status": "booking-success",
+                    "booking_id": booking_id,
+                    "reservation_id": reservation_id,
+                    "id": booking_id,
+                }
                 if selected_row:
                     payload["table_id"] = selected_row[0]
                     payload["table_number"] = selected_row[1]

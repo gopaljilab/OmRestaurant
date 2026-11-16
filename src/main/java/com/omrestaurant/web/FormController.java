@@ -2,6 +2,7 @@ package com.omrestaurant.web;
 
 import com.omrestaurant.model.RestaurantTable;
 import com.omrestaurant.service.FormService;
+import com.omrestaurant.service.FormService.BookingResult;
 import com.omrestaurant.service.FormService.TableCapacityException;
 import com.omrestaurant.service.FormService.TableUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,14 +46,22 @@ public class FormController {
                         "Please provide a valid name, email, date, and party size.");
             }
 
-            RestaurantTable selectedTable = forms.saveBooking(
+            BookingResult bookingResult = forms.saveBooking(
                     name.trim(), email.trim(), bookingTime, partySize, request.trim(), tableId
             );
+            RestaurantTable selectedTable = bookingResult.table();
+            Long bookingId = bookingResult.bookingId();
+            String reservationId = bookingResult.reservationId() != null
+                    ? bookingResult.reservationId()
+                    : (bookingId != null ? "OM-B" + bookingId : "OM-B" + System.currentTimeMillis());
 
             if (wantsJson) {
                 Map<String, Object> body = new LinkedHashMap<>();
                 body.put("ok", true);
                 body.put("status", "booking-success");
+                body.put("booking_id", bookingId);
+                body.put("reservation_id", reservationId);
+                body.put("id", bookingId);
                 if (selectedTable != null) {
                     body.put("table_id", selectedTable.id());
                     body.put("table_number", selectedTable.tableNumber());

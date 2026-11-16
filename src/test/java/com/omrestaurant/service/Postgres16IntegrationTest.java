@@ -465,7 +465,7 @@ public class Postgres16IntegrationTest {
 
         // Customer books table 5 (Main 4-seater)
         java.time.LocalDateTime bookingTime = java.time.LocalDateTime.now().plusDays(1).withHour(20).withMinute(0).withSecond(0).withNano(0);
-        com.omrestaurant.model.RestaurantTable booked = formService.saveBooking(
+        FormService.BookingResult booked = formService.saveBooking(
                 "Rajesh Khanna",
                 "rajesh@example.com",
                 bookingTime,
@@ -475,7 +475,10 @@ public class Postgres16IntegrationTest {
         );
 
         assertNotNull(booked);
-        assertEquals(5L, booked.id());
+        assertNotNull(booked.bookingId(), "Database must generate auto-increment booking ID");
+        assertTrue(booked.bookingId() > 0, "Generated booking ID must be positive");
+        assertNotNull(booked.table());
+        assertEquals(5L, booked.table().id());
 
         // Verify booking recorded in PostgreSQL booking table
         Integer count = jdbcTemplate.queryForObject(

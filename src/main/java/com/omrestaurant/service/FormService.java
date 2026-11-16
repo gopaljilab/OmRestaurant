@@ -1,13 +1,17 @@
 package com.omrestaurant.service;
 
 import com.omrestaurant.model.RestaurantTable;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,22 +66,80 @@ public class FormService {
         }, windowStart, windowEnd);
     }
 
+    public record BookingResult(Long bookingId, RestaurantTable table) {
+        public Long tableId() {
+            return table != null ? table.id() : null;
+        }
+
+        public String reservationId() {
+            return bookingId != null ? "OM-B" + bookingId : null;
+        }
+    }
+
     public void saveBooking(String name, String email, LocalDateTime date, int people, String request) {
         saveBooking(name, email, date, people, request, null);
     }
 
     @Transactional
-    public RestaurantTable saveBooking(String name, String email, LocalDateTime date, int people, String request, Long tableId) {
+    public BookingResult saveBooking(String name, String email, LocalDateTime date, int people, String request, Long tableId) {
         RestaurantTable lockedTable = null;
         if (tableId != null) {
             lockedTable = lockAndValidateTable(tableId, date, people);
         }
 
-        jdbc.update(
-                "INSERT INTO booking (name, email, booking_at, people, request, table_id) VALUES (?, ?, ?, ?, ?, ?)",
-                name, email, Timestamp.valueOf(date), people, request, tableId
-        );
-        return lockedTable;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO booking (name, email, booking_at, people, request, table_id) VALUES (?, ?, ?, ?, ?, ?)",
+                    new String[]{"id"}
+            );
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setTimestamp(3, Timestamp.valueOf(date));
+            ps.setInt(4, people);
+            ps.setString(5, request);
+            if (tableId != null) {
+                ps.setLong(6, tableId);
+            } else {
+                ps.setNull(6, Types.BIGINT);
+            }
+            return ps;
+        }, keyHolder);
+
+        Long bookingId = null;
+        try {
+            Number n = keyHolder.getKey();
+            if (n != null) {
+                bookingId = n.longValue();
+            }
+        } catch (Exception ignored) {
+        }
+
+        if (bookingId == null) {
+            try {
+                if (keyHolder.getKeys() != null) {
+                    for (Object val : keyHolder.getKeys().values()) {
+                        if (val instanceof Number n) {
+                            bookingId = n.longValue();
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (bookingId == null) {
+            try {
+                bookingId = jdbc.queryForObject(
+                        "SELECT id FROM booking WHERE email = ? ORDER BY id DESC LIMIT 1",
+                        Long.class, email
+                );
+            } catch (Exception ignored) {
+            }
+        }
+
+        return new BookingResult(bookingId, lockedTable);
     }
 
     private RestaurantTable lockAndValidateTable(Long tableId, LocalDateTime bookingTime, int partySize) {

@@ -190,6 +190,7 @@
                         }
                         if (res.ok) {
                             savedToBackend = true;
+                            return res.json().catch(function () { return {}; });
                         }
                         return null;
                     })
@@ -200,7 +201,60 @@
                         // Static preview / offline fallback when no POST backend responds
                         return null;
                     })
-                    .then(function () {
+                    .then(function (backendData) {
+                        const rawBookingId = backendData && (backendData.booking_id || backendData.id);
+                        const fallbackCode = Date.now().toString().slice(-6);
+                        const confirmedResId = (backendData && backendData.reservation_id)
+                            || (rawBookingId ? ("OM-B" + rawBookingId) : ("OM-B" + fallbackCode));
+
+                        const confirmedTableNum = (backendData && backendData.table_number) || tableNumber;
+                        const confirmedZone = (backendData && backendData.zone) || tableZone;
+                        const confirmedTableInfo = confirmedTableNum
+                            ? ("Table " + confirmedTableNum + (confirmedZone ? " (" + confirmedZone + ")" : ""))
+                            : tableInfo;
+
+                        let formattedDate = bookingDateTime;
+                        let formattedTime = "";
+
+                        if (bookingDateTime) {
+                            try {
+                                const dt = new Date(bookingDateTime);
+                                if (!isNaN(dt.getTime())) {
+                                    formattedDate = dt.toLocaleDateString("en-IN", {
+                                        weekday: "short",
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric"
+                                    });
+                                    formattedTime = dt.toLocaleTimeString("en-IN", {
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true
+                                    });
+                                }
+                            } catch (e) {}
+
+                            if (!formattedTime && bookingDateTime.indexOf("T") !== -1) {
+                                const parts = bookingDateTime.split("T");
+                                formattedDate = parts[0];
+                                const timePart = parts[1] || "";
+                                const timeSub = timePart.split(":");
+                                if (timeSub.length >= 2) {
+                                    let hour = parseInt(timeSub[0], 10);
+                                    const min = timeSub[1];
+                                    const ampm = hour >= 12 ? "PM" : "AM";
+                                    hour = hour % 12 || 12;
+                                    formattedTime = hour + ":" + min + " " + ampm;
+                                } else {
+                                    formattedTime = timePart;
+                                }
+                            }
+                        }
+
+                        const combinedDateTime = formattedTime
+                            ? (formattedDate + " at " + formattedTime)
+                            : formattedDate;
+
                         return window.emailjs.send(creds.serviceId, creds.templateId, {
                             name: guestName,
                             to_name: guestName,
@@ -211,27 +265,42 @@
                             user_email: guestEmail,
                             guest_email: guestEmail,
                             reply_to: guestEmail,
-                            date: bookingDateTime,
-                            booking_date: bookingDateTime,
-                            reservation_date: bookingDateTime,
-                            date_time: bookingDateTime,
+                            reservation_id: confirmedResId,
+                            booking_id: confirmedResId,
+                            reservationId: confirmedResId,
+                            bookingId: confirmedResId,
+                            id: rawBookingId || confirmedResId,
+                            order_id: confirmedResId,
+                            booking_number: confirmedResId,
+                            reservation_number: confirmedResId,
+                            date: formattedDate,
+                            booking_date: formattedDate,
+                            reservation_date: formattedDate,
+                            time: formattedTime,
+                            booking_time: formattedTime,
+                            reservation_time: formattedTime,
+                            date_time: combinedDateTime,
+                            booking_date_time: combinedDateTime,
                             people: partySize,
                             guests: partySize,
                             party_size: partySize,
                             num_guests: partySize,
-                            table_id: tableId || "auto",
-                            table_number: tableNumber || "Auto",
-                            table_zone: tableZone || "Any",
-                            table_info: tableInfo,
+                            table_id: (backendData && backendData.table_id) || tableId || "auto",
+                            table_number: confirmedTableNum || "Auto",
+                            table_zone: confirmedZone || "Any",
+                            table_info: confirmedTableInfo,
                             request: specialReq,
                             special_request: specialReq,
                             message: specialReq,
                             from_name: "OmRestaurant"
-                        }, creds.publicKey);
+                        }, creds.publicKey).then(function () {
+                            return { confirmedResId: confirmedResId, confirmedTableInfo: confirmedTableInfo };
+                        });
                     })
-                    .then(function () {
-                        const tableSuffix = tableNumber ? (" (" + tableInfo + ")") : "";
-                        notify("Reservation confirmed" + tableSuffix + "! A confirmation email has been sent to " + guestEmail, "success");
+                    .then(function (result) {
+                        const resSuffix = result && result.confirmedResId ? (" [ID: #" + result.confirmedResId + "]") : "";
+                        const tableSuffix = tableNumber ? (" (" + (result ? result.confirmedTableInfo : tableInfo) + ")") : "";
+                        notify("Reservation confirmed" + tableSuffix + resSuffix + "! A confirmation email has been sent to " + guestEmail, "success");
                         form.reset();
                         document.dispatchEvent(new CustomEvent("om:booking-complete"));
                         setButtonState(btn, false, "Book Now");
